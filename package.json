@@ -2,9 +2,10 @@
    "name": "chitty",
    "private": true,
    "scripts": {
+      "clean:all": "bun --workspaces clean && bunx rimraf node_modules",
       "web:dev": "bun -F web dev",
       "server:dev": "bun -F server dev",
-      "clean:all": "bun --workspaces clean && bunx rimraf node_modules"
+      "server:db": "bun -F server db"
    },
    "devDependencies": {
       "@types/bun": "latest"
@@ -12,7 +13,9 @@
    "peerDependencies": {
       "typescript": "^5"
    },
-   "workspaces": [
-      "apps/*"
-   ]
+   "workspaces": {
+      "packages": [
+         "apps/*"
+      ]
+   }
 }

@@ -2,6 +2,7 @@ import { Elysia } from "elysia"
 import { auth } from "@/middleware/auth"
 import { HttpError } from "@/utils/http/HttpError"
 import { response } from "@/utils/http/response"
+import { db } from "@/utils/db"
 
 const app = new Elysia({
    prefix: "api",
@@ -28,5 +29,6 @@ const app = new Elysia({
             })
       }
    })
+   .decorate("db", db)
 
 export default app
