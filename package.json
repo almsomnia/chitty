@@ -1,0 +1,17 @@
+{
+   "name": "chitty",
+   "private": true,
+   "scripts": {
+      "web:dev": "bun -F web dev",
+      "server:dev": "bun -F server dev"
+   },
+   "devDependencies": {
+      "@types/bun": "latest"
+   },
+   "peerDependencies": {
+      "typescript": "^5"
+   },
+   "workspaces": [
+      "apps/*"
+   ]
+}
