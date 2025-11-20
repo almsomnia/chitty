@@ -3,7 +3,8 @@
    "private": true,
    "scripts": {
       "web:dev": "bun -F web dev",
-      "server:dev": "bun -F server dev"
+      "server:dev": "bun -F server dev",
+      "clean:all": "bun --workspaces clean && bunx rimraf node_modules"
    },
    "devDependencies": {
       "@types/bun": "latest"
