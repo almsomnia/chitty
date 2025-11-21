@@ -40,12 +40,21 @@ export const userService = {
       return result
    },
 
-   create: async (body: CreateUserDto) => {
+   create: async (payload: CreateUserDto) => {
       try {
-         const result = await db.insert(table.users).values(body).returning({
+         const data = {
+            ...payload,
+            password: await Bun.password.hash(payload.password, {
+               algorithm: "bcrypt",
+            }),
+         }
+
+         const result = await db.insert(table.users).values(data).returning({
             id: table.users.id,
             name: table.users.name,
             email: table.users.email,
+            created_at: table.users.created_at,
+            updated_at: table.users.updated_at
          })
          return result
       } catch (e) {
@@ -82,9 +91,7 @@ export const userService = {
 
    delete: async (id: number) => {
       try {
-         await db
-            .delete(table.users)
-            .where(eq(table.users.id, id))
+         await db.delete(table.users).where(eq(table.users.id, id))
 
          return true
       } catch (e) {
