@@ -2,6 +2,7 @@ import { Elysia } from "elysia"
 import { auth } from "@/middleware/auth"
 import { HttpError } from "@/utils/http/HttpError"
 import pluginProvider from "@/providers/pluginProvider"
+import userModules from "@/modules/user"
 
 const port = import.meta.env.SERVER_PORT ?? 3080
 
@@ -32,7 +33,7 @@ const app = new Elysia({
       }
    })
 
-app.get("/", ({ response }) => response(null, { message: "OK" })).listen(port)
+app.use(userModules).get("/", ({ response }) => response(null, { message: "OK" })).listen(port)
 
 console.log(
    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
