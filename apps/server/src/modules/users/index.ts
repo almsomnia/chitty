@@ -2,10 +2,14 @@ import { Elysia, t } from "elysia"
 import pluginProvider from "@/providers/pluginProvider"
 import { userService } from "./user.service"
 import { createUserDto, updateUserDto } from "./user.dto"
+import { auth } from "@/middleware/auth"
 
 export default new Elysia({ prefix: "users" })
    .use(pluginProvider)
-   .get("/", async ({ response, query, status }) => {
+   .guard({
+      beforeHandle: ({ request, jwt }) => auth(request, jwt),
+   })
+   .get("/", async ({ request, response, query, status }) => {
       const data = await userService.get({
          page: query.page,
          per_page: query.per_page,

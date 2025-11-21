@@ -1,8 +1,8 @@
 import { Elysia, type ValidationError } from "elysia"
-import { auth } from "@/middleware/auth"
 import { HttpError } from "@/utils/http/HttpError"
 import pluginProvider from "@/providers/pluginProvider"
 import userModules from "@/modules/users"
+import authModules from "@/modules/auth"
 
 const port = import.meta.env.SERVER_PORT ?? 3080
 
@@ -12,7 +12,6 @@ const app = new Elysia({
 })
    .use(pluginProvider)
    .error({ HttpError })
-   .onRequest(auth)
    .onError((ctx) => {
       const { error, code, response } = ctx
       console.error(error)
@@ -39,8 +38,8 @@ const app = new Elysia({
             })
       }
    })
-
-app.use(userModules)
+   .use(authModules)
+   .use(userModules)
    .get("/", ({ response }) => response(null, { message: "OK" }))
    .listen(port)
 
