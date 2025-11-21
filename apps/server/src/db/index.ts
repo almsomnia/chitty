@@ -1,7 +1,7 @@
 import { SQL } from "bun"
 import { drizzle } from "drizzle-orm/bun-sql"
 import dbCredentials from "./credentials"
-import { schema } from "./schema"
+import schema from "./schema"
 
 declare global {
    var dbClient: SQL | undefined

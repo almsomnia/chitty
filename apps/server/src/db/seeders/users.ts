@@ -1,4 +1,4 @@
-import { schema } from "../schema"
+import schema from "../schema"
 import { db } from "../"
 import { seed } from "drizzle-seed"
 
