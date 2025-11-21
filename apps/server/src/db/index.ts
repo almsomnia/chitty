@@ -1,13 +1,19 @@
 import { SQL } from "bun"
 import { drizzle } from "drizzle-orm/bun-sql"
 import dbCredentials from "./credentials"
-import schemaProvider from "@/providers/dbSchemaProvider"
+import { schema } from "./schema"
 
-const pool = new SQL({
-   ...dbCredentials,
-})
+declare global {
+   var dbClient: SQL | undefined
+}
+
+const client = globalThis.dbClient || new SQL({ ...dbCredentials })
+
+if (process.env.NODE_ENV !== "production") {
+   globalThis.dbClient = client
+}
 
 export const db = drizzle({
-   client: pool,
-   schema: schemaProvider
+   client,
+   schema
 })

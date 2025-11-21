@@ -1,8 +1,8 @@
-import { Elysia } from "elysia"
+import { Elysia, type ValidationError } from "elysia"
 import { auth } from "@/middleware/auth"
 import { HttpError } from "@/utils/http/HttpError"
 import pluginProvider from "@/providers/pluginProvider"
-import userModules from "@/modules/user"
+import userModules from "@/modules/users"
 
 const port = import.meta.env.SERVER_PORT ?? 3080
 
@@ -23,6 +23,13 @@ const app = new Elysia({
                error: error.message,
                code: error.statusCode,
             })
+         case "VALIDATION":
+            const summary = error.all.map((item) => item.summary).join("; ")
+
+            return response(error.all, {
+               error: summary,
+               code: 422,
+            })
          default:
             return response(null, {
                error:
@@ -33,7 +40,9 @@ const app = new Elysia({
       }
    })
 
-app.use(userModules).get("/", ({ response }) => response(null, { message: "OK" })).listen(port)
+app.use(userModules)
+   .get("/", ({ response }) => response(null, { message: "OK" }))
+   .listen(port)
 
 console.log(
    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
