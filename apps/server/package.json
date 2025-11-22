@@ -5,7 +5,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
     "clean": "bunx rimraf node_modules",
-    "db": "bunx drizzle-kit"
+    "db": "bunx drizzle-kit",
+    "db:seed": "bun run ./src/db/seeders/index.ts"
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.4.0",
