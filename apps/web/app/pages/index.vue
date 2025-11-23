@@ -1,5 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-   index
+   <div class="text-2xl">
+      Welcome!
+   </div>
 </template>
