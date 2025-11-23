@@ -38,6 +38,7 @@ export const taskService = {
          })
          .from(table.tasks)
          .leftJoin(table.users, eq(table.users.id, table.tasks.assignee_id))
+         .where(eq(columns.id, id))
 
       return result
    },
@@ -70,7 +71,7 @@ export const taskService = {
             .update(table.tasks)
             .set({
                ...payload,
-               updated_at: new Date()
+               updated_at: new Date(),
             })
             .where(eq(columns.id, id))
             .returning(columns)
