@@ -15,7 +15,8 @@ export const auth = async (request: Request, jwt: JwtPlugin) => {
 
    const userExists = await db.query.users.findFirst({
       columns: { id: true },
-      where: (u, { eq }) => eq(u.id, userData.id),
+      where: (u, { eq, and }) =>
+         and(eq(u.id, userData.id), eq(u.email, userData.email)),
    })
 
    if (!userExists) throw unauthorized

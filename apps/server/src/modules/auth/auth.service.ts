@@ -31,7 +31,9 @@ export const authService = {
 
       const token = await jwt.sign({
          user: {
-            id: user.id
+            id: user.id,
+            name: user.name,
+            email: user.email,
          },
       })
 
