@@ -3,7 +3,7 @@ export default defineNuxtConfig({
    compatibilityDate: "2025-07-15",
    devtools: { enabled: true },
    ssr: false,
-   modules: ["@nuxt/ui", "@pinia/nuxt", "@vueuse/nuxt"],
+   modules: ["@nuxt/ui", "@pinia/nuxt", "@vueuse/nuxt", "dayjs-nuxt", "pinia-plugin-persistedstate/nuxt"],
    css: ["~/assets/css/main.css"],
    components: {
       dirs: [
@@ -13,4 +13,13 @@ export default defineNuxtConfig({
          },
       ],
    },
+   runtimeConfig: {
+      apiUrl: import.meta.env.API_URL,
+   },
+   dayjs: {
+      defaultLocale: "id",
+      locales: ["en", "id"],
+      plugins: ["utc", "duration", "timezone", "relativeTime"],
+      defaultTimezone: "Asia/Jakarta",
+   }
 })
