@@ -1,20 +1,30 @@
-import { main as userSeeder } from "./users"
 import { db } from "@/db"
-import { reset } from "drizzle-seed"
+import { seed } from "drizzle-seed"
 import schema from "../schema"
 
-async function seed() {
-   try {
-      console.info("Seeding...")
-      await Promise.all([userSeeder()])
-         .then(() => {
-            console.info("Seeding completed")
-         })
-   } catch (e) {
-      reset(db, schema)
-      console.info("Seeding failed")
-      throw e
-   }
+const { priorityEnum, ..._schema } = schema
+
+async function main() {
+   await seed(db, _schema).refine((f) => {
+      return {
+         users: {
+            columns: {
+               password: f.default({
+                  defaultValue: Bun.password.hashSync("password", {
+                     algorithm: "bcrypt"
+                  })
+               }),
+            }
+         },
+         tasks: {
+            columns: {
+               title: f.loremIpsum({ sentencesCount: 4 }),
+               description: f.loremIpsum({ sentencesCount: 12 }),
+               status_id: f.number({ minValue: 1, maxValue: 5 }),
+            }
+         }
+      }
+   })
 }
 
-await seed()
+await main()
