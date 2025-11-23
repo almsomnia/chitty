@@ -9,13 +9,24 @@ export default new Elysia({ prefix: "users" })
    .guard({
       beforeHandle: ({ request, jwt }) => auth(request, jwt),
    })
-   .get("/", async ({ request, response, query, status }) => {
-      const data = await userService.get({
-         page: query.page,
-         per_page: query.per_page,
-      })
-      return response(data)
-   })
+   .get(
+      "/",
+      async ({ request, response, query, status }) => {
+         const data = await userService.get({
+            page: query.page,
+            per_page: query.per_page,
+         })
+         return response(data)
+      },
+      {
+         query: t.Optional(
+            t.Object({
+               page: t.Optional(t.Numeric({ minimum: 1 })),
+               per_page: t.Optional(t.Numeric({ minimum: 0 })),
+            })
+         ),
+      }
+   )
    .get("/:id", async ({ response, params }) => {
       const data = await userService.find(params.id)
       return response(data)

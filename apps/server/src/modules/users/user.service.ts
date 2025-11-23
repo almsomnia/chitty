@@ -2,40 +2,31 @@ import { db } from "@/db"
 import type { CreateUserDto, UpdateUserDto } from "./user.dto"
 import { table } from "@/db/tables"
 import { HttpError } from "@/utils/http/HttpError"
-import { eq } from "drizzle-orm"
+import { eq, getTableColumns, sql } from "drizzle-orm"
+import { paginate } from "@/utils/db/query-builder"
 
 type GetArgs = {
-   page?: string
-   per_page?: string
+   page?: number
+   per_page?: number
 }
-
-const model = db.query.users
 
 export const userService = {
    get: async (args: GetArgs = {}) => {
-      const page = (args.page && Number(args.page)) || undefined
-      const perPage = (args.per_page && Number(args.per_page)) || undefined
+      const count = await db.$count(table.users)
 
-      const offset = page && perPage ? (page - 1) * perPage : undefined
-      const limit = perPage
+      const { password, ...columns } = getTableColumns(table.users)
+      const query = db.select(columns).from(table.users).$dynamic()
 
-      const result = await model.findMany({
-         limit,
-         offset,
-         columns: {
-            password: false,
-         },
-      })
+      const result = await paginate(query, args.page, args.per_page, count)
       return result
    },
 
    find: async (id: string | number) => {
-      const result = await model.findFirst({
-         where: (users, { eq }) => eq(users.id, Number(id)),
-         columns: {
-            password: false,
-         },
-      })
+      const { password, ...columns } = getTableColumns(table.users)
+      const [result] = await db
+         .select(columns)
+         .from(table.users)
+         .where(eq(table.users.id, Number(id)))
 
       return result
    },
@@ -54,7 +45,7 @@ export const userService = {
             name: table.users.name,
             email: table.users.email,
             created_at: table.users.created_at,
-            updated_at: table.users.updated_at
+            updated_at: table.users.updated_at,
          })
          return result
       } catch (e) {
