@@ -22,6 +22,15 @@ export default defineAppConfig({
       colors: {
          primary: "fuchsia",
          neutral: "zinc"
+      },
+      modal: {
+         variants: {
+            fullscreen: {
+               false: {
+                  content: /* @tw */ "min-w-lg max-w-[calc(100vw-2rem)] rounded-lg shadow-lg ring ring-default"
+               }
+            }
+         }
       }
    }
 })
