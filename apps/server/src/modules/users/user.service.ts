@@ -15,7 +15,7 @@ export const userService = {
       const count = await db.$count(table.users)
 
       const { password, ...columns } = getTableColumns(table.users)
-      const query = db.select(columns).from(table.users).$dynamic()
+      const query = db.select(columns).from(table.users).orderBy(table.users.id).$dynamic()
 
       const result = await paginate(query, args.page, args.per_page, count)
       return result

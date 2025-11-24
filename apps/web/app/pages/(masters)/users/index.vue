@@ -6,6 +6,7 @@ import type {
 } from "#shared/utils/validation-schemas/users"
 
 const appStore = useAppStore()
+const authStore = useAuthStore()
 
 const query = ref<API.Query>({
    page: 1,
@@ -55,6 +56,30 @@ function getRowItems(row: Row<Model.User>): DropdownMenuItem[] {
          label: "Delete",
          icon: "lucide:trash",
          color: "error",
+         disabled: authStore.user?.id === row.original.id,
+         onSelect: () => {
+            appStore.showDialog(
+               "Confirm Delete User",
+               h(resolveComponent("AppConfirmDialog"), {
+                  positiveButtonColor: "error",
+                  positiveButtonLabel: "Delete User",
+                  positiveButtonIcon: "lucide:trash",
+                  onNegative: appStore.closeDialog,
+                  onPositive: async () => {
+                     const res = await $api(`/api/users/${row.original.id}`, {
+                        method: "delete"
+                     })
+                     appStore.notify({
+                        title: "Success",
+                        description: res.meta.message,
+                        color: "info"
+                     })
+                     appStore.closeDialog()
+                     refresh()
+                  }
+               }),
+            )
+         }
       },
    ]
 }
