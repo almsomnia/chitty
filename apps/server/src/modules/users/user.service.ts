@@ -66,13 +66,17 @@ export const userService = {
             throw new HttpError("Data not found", 404)
          }
 
-         const result = await db.update(table.users).set(body).returning({
-            id: table.users.id,
-            name: table.users.name,
-            email: table.users.email,
-            created_at: table.users.created_at,
-            updated_at: table.users.updated_at,
-         })
+         const result = await db
+            .update(table.users)
+            .set(body)
+            .where(eq(table.users.id, id))
+            .returning({
+               id: table.users.id,
+               name: table.users.name,
+               email: table.users.email,
+               created_at: table.users.created_at,
+               updated_at: table.users.updated_at,
+            })
 
          return result
       } catch (e) {

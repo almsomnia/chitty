@@ -4,6 +4,7 @@ import { $userSchema } from "#shared/utils/validation-schemas/users"
 const props = withDefaults(
    defineProps<{
       loading?: Ref<boolean>
+      data?: Model.User
    }>(),
    {
       loading: () => shallowRef(false)
@@ -21,6 +22,15 @@ const state = ref<InferSchema<typeof schema>>({
    email: "",
    password: "",
    password_confirmation: ""
+})
+
+onMounted(() => {
+   if (props.data) {
+      Object.keys(props.data).forEach((key) => {
+         // @ts-ignore
+         state.value[key] = props.data[key]
+      })
+   }
 })
 
 async function onSubmit(e: FormSubmitEvent<typeof state.value>) {

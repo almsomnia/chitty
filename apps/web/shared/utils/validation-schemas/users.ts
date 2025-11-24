@@ -12,8 +12,12 @@ const create = z
       path: ["password_confirmation"],
    })
 
+const update = create.omit({ password: true, password_confirmation: true })
+
 export const $userSchema = {
-   create
+   create,
+   update
 }
 
 export type CreateUserSchema = InferSchema<typeof create>
+export type UpdateUserSchema = InferSchema<typeof update>

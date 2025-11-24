@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "#ui/types"
-import type { CreateUserSchema } from "#shared/utils/validation-schemas/users"
+import type {
+   CreateUserSchema,
+   UpdateUserSchema,
+} from "#shared/utils/validation-schemas/users"
 
 const appStore = useAppStore()
 
@@ -45,7 +48,7 @@ function getRowItems(row: Row<Model.User>): DropdownMenuItem[] {
          label: "Edit",
          icon: "lucide:edit",
          onSelect: () => {
-            console.log(row.original.id)
+            openForm(row.original)
          },
       },
       {
@@ -57,28 +60,55 @@ function getRowItems(row: Row<Model.User>): DropdownMenuItem[] {
 }
 
 const loading = shallowRef(false)
+
 function openForm(data?: Model.User) {
+   const component = data
+      ? resolveComponent("FormUserUpdate")
+      : resolveComponent("FormUser")
+
+   const submitHandler = data
+      ? (values: UpdateUserSchema) => onUpdate(data.id, values)
+      : (values: Omit<CreateUserSchema, "password_confirmation">) =>
+           onCreate(values)
+
    appStore.showDialog(
       "User Form",
-      h(
-         resolveComponent("FormUser"),
-         {
-            loading: loading,
-            onSubmit: async (values: Omit<CreateUserSchema, "password_confirmation">) => {
-               const res = await $api(`/api/users`, {
-                  method: "post",
-                  body: values
-               })
-               appStore.notify({
-                  title: "Success",
-                  description: res.meta.message,
-               })
-               appStore.closeDialog()
-               refresh()
-            }
-         }
-      )
+      h(component, {
+         loading: loading,
+         data,
+         onSubmit: async (
+            values:
+               | Omit<CreateUserSchema, "password_confirmation">
+               | UpdateUserSchema
+         ) => {
+            const res = await submitHandler(
+               values as Omit<CreateUserSchema, "password_confirmation">
+            )
+            appStore.notify({
+               title: "Success",
+               description: res.meta.message,
+            })
+            appStore.closeDialog()
+            refresh()
+         },
+      })
    )
+}
+
+async function onCreate(
+   values: Omit<CreateUserSchema, "password_confirmation">
+) {
+   return await $api(`/api/users`, {
+      method: "post",
+      body: values,
+   })
+}
+
+async function onUpdate(id: number, values: UpdateUserSchema) {
+   return await $api(`/api/users/${id}`, {
+      method: "put",
+      body: values,
+   })
 }
 </script>
 
