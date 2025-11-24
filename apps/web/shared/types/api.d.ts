@@ -16,4 +16,11 @@ declare namespace API {
       to: number
       total: number
    }
+
+   type Query<T = Record<string, string | number>> = {
+      page?: number
+      per_page?: number
+   } & {
+      [K in keyof T]?: T[K]
+   }
 }

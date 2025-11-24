@@ -11,6 +11,11 @@ export default defineAppConfig({
             to: "/tasks/list",
             icon: "lucide:clipboard",
          },
+         {
+            label: "Users",
+            to: "/users",
+            icon: "lucide:users"
+         }
       ],
    ],
    ui: {

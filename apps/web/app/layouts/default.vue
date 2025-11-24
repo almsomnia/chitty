@@ -1,7 +1,7 @@
 <template>
-   <AppHeader class="fixed top-0 inset-x-0 w-full border-b border-accented" />
-   <AppSidebar class="fixed start-0 inset-y-0 h-full border-e border-accented" />
-   <main class="main-height ms-(--sidebar-width) mt-(--header-height) p-2">
+   <LayoutHeader class="fixed top-0 inset-x-0 w-full border-b border-muted" />
+   <LayoutSidebar class="fixed start-0 inset-y-0 h-full border-e border-muted" />
+   <main class="main-height ms-(--sidebar-width) mt-(--header-height) p-4 bg-muted">
       <slot />
    </main>
 </template>
