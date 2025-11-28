@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+   layout: false
+})
+
 const schema = zod.object({
    email: zod.email(),
    password: zod.string().min(8),
