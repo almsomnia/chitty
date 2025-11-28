@@ -12,10 +12,7 @@ export default new Elysia({ prefix: "tasks" })
    .get(
       "/",
       async ({ response, query }) => {
-         const data = await taskService.get({
-            page: query.page,
-            per_page: query.per_page,
-         })
+         const data = await taskService.get(query)
          return response(data)
       },
       {
@@ -23,6 +20,11 @@ export default new Elysia({ prefix: "tasks" })
             t.Object({
                page: t.Optional(t.Numeric({ minimum: 1 })),
                per_page: t.Optional(t.Numeric({ minimum: 0 })),
+               title: t.Optional(t.String()),
+               status_id: t.Optional(t.Numeric()),
+               priority: t.Optional(t.String()),
+               order_key: t.Optional(t.String()),
+               order_dir: t.Optional(t.String())
             })
          ),
       }

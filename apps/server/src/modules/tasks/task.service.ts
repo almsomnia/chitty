@@ -2,12 +2,17 @@ import { db } from "@/db"
 import type { CreateTaskDto, UpdateTaskDto } from "./task.dto"
 import { table } from "@/db/tables"
 import { HttpError } from "@/utils/http/HttpError"
-import { paginate } from "@/utils/db/query-builder"
-import { eq, getTableColumns } from "drizzle-orm"
+import { paginate, order } from "@/utils/db/query-builder"
+import { eq, ilike, getTableColumns, asc, SQL, and } from "drizzle-orm"
 
 type GetArgs = {
    page?: number
    per_page?: number
+   title?: string
+   status_id?: number
+   priority?: typeof columns.priority | (string & {})
+   order_key?: keyof typeof columns | (string & {})
+   order_dir?: ("asc" | "desc") | (string & {})
 }
 
 const columns = getTableColumns(table.tasks)
@@ -16,7 +21,24 @@ const statusColumns = getTableColumns(table.statuses)
 
 export const taskService = {
    get: async (args: GetArgs = {}) => {
-      const count = await db.$count(table.tasks)
+      const filters: SQL[] = []
+
+      if (args.title) {
+         filters.push(ilike(table.tasks.title, `%${args.title}%`))
+      }
+
+      if (args.status_id) {
+         filters.push(eq(table.tasks.status_id, args.status_id))
+      }
+
+      if (args.priority) {
+         filters.push(
+            eq(
+               table.tasks.priority,
+               args.priority as typeof table.tasks.priority
+            )
+         )
+      }
 
       const query = db
          .select({
@@ -27,9 +49,15 @@ export const taskService = {
          .from(table.tasks)
          .leftJoin(table.users, eq(table.users.id, table.tasks.assignee_id))
          .leftJoin(table.statuses, eq(table.statuses.id, table.tasks.status_id))
+         .where(and(...filters))
+         .orderBy(
+            args.order_dir && args.order_key
+               ? order(table.tasks, args.order_key, args.order_dir)
+               : asc(table.tasks.id)
+         )
          .$dynamic()
 
-      const result = await paginate(query, args.page, args.per_page, count)
+      const result = await paginate(query, args.page, args.per_page)
       return result
    },
 
