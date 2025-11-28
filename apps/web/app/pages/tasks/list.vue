@@ -35,9 +35,16 @@ const columns: TableColumn<Model.Task>[] = [
          h("div", { class: /* @tw */ "truncate w-xs" }, row.original.title),
    },
    {
-      accessorKey: "status_id",
+      accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => row.original.status_id,
+      cell: ({ row }) => h(
+         UBadge,
+         {
+            variant: "subtle",
+            color: $resolveTaskStatusColor(row.original.status),
+            label: row.original.status.name
+         }
+      ),
       size: 128,
    },
    {
@@ -49,8 +56,8 @@ const columns: TableColumn<Model.Task>[] = [
             {
                variant: "subtle",
                color: $resolveTaskPriorityColor(row.original.priority),
+               label: row.original.priority
             },
-            row.original.priority
          ),
    },
    {
@@ -76,7 +83,7 @@ const columns: TableColumn<Model.Task>[] = [
    },
    {
       accessorKey: "created_at",
-      header: "Created",
+      header: "Created At",
       cell: ({ row }) =>
          dayjs(row.original.created_at).format("DD MMM YYYY HH:mm"),
    },

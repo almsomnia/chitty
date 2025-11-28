@@ -12,6 +12,7 @@ type GetArgs = {
 
 const columns = getTableColumns(table.tasks)
 const { password, ...userColumns } = getTableColumns(table.users)
+const statusColumns = getTableColumns(table.statuses)
 
 export const taskService = {
    get: async (args: GetArgs = {}) => {
@@ -21,9 +22,11 @@ export const taskService = {
          .select({
             ...columns,
             assignee: userColumns,
+            status: statusColumns,
          })
          .from(table.tasks)
          .leftJoin(table.users, eq(table.users.id, table.tasks.assignee_id))
+         .leftJoin(table.statuses, eq(table.statuses.id, table.tasks.status_id))
          .$dynamic()
 
       const result = await paginate(query, args.page, args.per_page, count)

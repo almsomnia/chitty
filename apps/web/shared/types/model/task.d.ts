@@ -4,6 +4,7 @@ declare namespace Model {
       title: string
       description: string | null
       status_id: number
+      status: Model.Status
       assignee_id: Model.User["id"] | null
       assignee: Model.User | null
       due_date: string | null
