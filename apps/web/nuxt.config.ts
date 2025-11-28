@@ -17,7 +17,7 @@ export default defineNuxtConfig({
       apiUrl: import.meta.env.API_URL,
    },
    dayjs: {
-      defaultLocale: "id",
+      defaultLocale: "en",
       locales: ["en", "id"],
       plugins: ["utc", "duration", "timezone", "relativeTime"],
       defaultTimezone: "Asia/Jakarta",
