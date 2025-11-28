@@ -12,12 +12,10 @@ type GetArgs = {
 
 export const userService = {
    get: async (args: GetArgs = {}) => {
-      const count = await db.$count(table.users)
-
       const { password, ...columns } = getTableColumns(table.users)
       const query = db.select(columns).from(table.users).orderBy(table.users.id).$dynamic()
 
-      const result = await paginate(query, args.page, args.per_page, count)
+      const result = await paginate(query, args.page, args.per_page)
       return result
    },
 
