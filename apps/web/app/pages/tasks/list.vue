@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DetailTask, UBadge } from "#components"
-import type { DropdownMenuItem } from "#ui/types"
+import type { DropdownMenuItem, SelectProps } from "#ui/types"
 
 const appStore = useAppStore()
 const dayjs = useDayjs()
@@ -8,6 +8,9 @@ const dayjs = useDayjs()
 const query = ref<API.Query>({
    page: 1,
    per_page: 10,
+   title: undefined,
+   priority: undefined,
+   status: undefined
 })
 
 const { data, pending, refresh } = await useLazyFetch(`/api/tasks`, {
@@ -15,7 +18,15 @@ const { data, pending, refresh } = await useLazyFetch(`/api/tasks`, {
    query,
    transform: (res) => res.data,
    $fetch: $api as typeof $fetch,
+   watch: false,
 })
+
+watchExcludable(query, () => refresh(), { exclude: ["title"] })
+watchDebounced(
+   () => query.value.title,
+   () => refresh(),
+   { debounce: 800, maxWait: 1000 }
+)
 
 const columns: TableColumn<Model.Task>[] = [
    {
@@ -37,28 +48,23 @@ const columns: TableColumn<Model.Task>[] = [
    {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => h(
-         UBadge,
-         {
+      cell: ({ row }) =>
+         h(UBadge, {
             variant: "subtle",
             color: $resolveTaskStatusColor(row.original.status),
-            label: row.original.status.name
-         }
-      ),
+            label: row.original.status.name,
+         }),
       size: 128,
    },
    {
       accessorKey: "priority",
       header: "Priority",
       cell: ({ row }) =>
-         h(
-            UBadge,
-            {
-               variant: "subtle",
-               color: $resolveTaskPriorityColor(row.original.priority),
-               label: row.original.priority
-            },
-         ),
+         h(UBadge, {
+            variant: "subtle",
+            color: $resolveTaskPriorityColor(row.original.priority),
+            label: row.original.priority,
+         }),
    },
    {
       accessorKey: "assignee",
@@ -102,7 +108,7 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
             appStore.showDialog(
                `Task #${row.original.id}`,
                h(DetailTask, {
-                  data: row.original
+                  data: row.original,
                }),
                {
                   class: /* @tw */ "w-6xl",
@@ -123,6 +129,59 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
          :loading="pending"
          v-model:page="query.page"
          v-model:per-page="query.per_page"
-      ></AppDataTable>
+      >
+         <template #header>
+            <div class="flex gap-4">
+               <UInput
+                  v-model="query.title"
+                  icon="lucide:search"
+                  placeholder="Search..."
+                  class="w-3xs"
+               />
+               <div class="w-40 flex items-center gap-2">
+                  <SelectTaskPriority
+                     v-model="query.priority"
+                     class="flex-1"
+                  />
+                  <UTooltip
+                     v-if="!!query.priority"
+                     text="Clear"
+                  >
+                     <UButton
+                        color="neutral"
+                        variant="link"
+                        icon="lucide:x"
+                        size="sm"
+                        @click.stop="query.priority = undefined"
+                     />
+                  </UTooltip>
+               </div>
+               <div class="w-40 flex items-center gap-2">
+                  <SelectStatus
+                     v-model="query.status_id"
+                     class="flex-1"
+                  />
+                  <UTooltip
+                     v-if="!!query.status_id"
+                     text="Clear"
+                  >
+                     <UButton
+                        color="neutral"
+                        variant="link"
+                        icon="lucide:x"
+                        size="sm"
+                        @click.stop="query.status_id = undefined"
+                     />
+                  </UTooltip>
+               </div>
+               <div class="flex-1 flex justify-end">
+                  <UButton
+                     label="New Task"
+                     icon="lucide:plus"
+                  />
+               </div>
+            </div>
+         </template>
+      </AppDataTable>
    </UCard>
 </template>

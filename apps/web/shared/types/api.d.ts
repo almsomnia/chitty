@@ -20,7 +20,5 @@ declare namespace API {
    type Query<T = Record<string, string | number>> = {
       page?: number
       per_page?: number
-   } & {
-      [K in keyof T]?: T[K]
-   }
+   } & Partial<T>
 }
