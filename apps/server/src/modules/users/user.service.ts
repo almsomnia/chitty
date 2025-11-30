@@ -2,12 +2,16 @@ import { db } from "@/db"
 import type { CreateUserDto, UpdateUserDto } from "./user.dto"
 import { table } from "@/db/tables"
 import { HttpError } from "@/utils/http/HttpError"
-import { eq, getTableColumns, sql } from "drizzle-orm"
+import { and, asc, eq, getTableColumns, ilike, SQL, sql } from "drizzle-orm"
 import { paginate } from "@/utils/db/query-builder"
 
 type GetArgs = {
    page?: number
    per_page?: number
+}
+
+type OptionFilter = {
+   search?: string
 }
 
 export const userService = {
@@ -91,4 +95,28 @@ export const userService = {
          throw e
       }
    },
+
+   getOptions: async (filter: OptionFilter) => {
+      const filters: SQL[] = []
+
+      if (filter.search) {
+         filters.push(ilike(table.users.name, `%${filter.search}%`))
+      }
+
+      const { id, name, password, ...meta } = getTableColumns(table.users)
+
+      const result = await db
+         .select({
+            label: name,
+            value: id,
+            meta: {
+               email: meta.email
+            }
+         })
+         .from(table.users)
+         .where(and(...filters))
+         .orderBy(asc(id))
+
+      return result
+   }
 }

@@ -21,4 +21,12 @@ declare namespace API {
       page?: number
       per_page?: number
    } & Partial<T>
+
+   type Option<
+      M extends undefined | Record<string, any> = undefined,
+      V extends any = number
+   > = {
+      label: string
+      value: V
+   } & (M extends Record<string, any> ? { meta: M } : never)
 }

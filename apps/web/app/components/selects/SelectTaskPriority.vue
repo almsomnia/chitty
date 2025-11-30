@@ -11,7 +11,6 @@ const props = withDefaults(
    {
       labelKey: "value",
       valueKey: "value",
-      placeholder: "Priority",
    }
 )
 

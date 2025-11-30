@@ -1,13 +1,13 @@
 <script setup lang="ts" generic="M extends boolean = false">
-import type { GetItemKeys, GetModelValue, SelectItem } from "#ui/types"
+import type { GetItemKeys, GetModelValue, SelectMenuItem } from "#ui/types"
 
 const props = withDefaults(
    defineProps<{
-      labelKey?: GetItemKeys<SelectItem[]>
+      labelKey?: GetItemKeys<SelectMenuItem[]>
       valueKey?: string
-      placeholder?: string
       multiple?: M
       loading?: boolean
+      placeholder?: string
    }>(),
    {
       labelKey: "label",
@@ -20,25 +20,34 @@ const appStore = useAppStore()
 const model = defineModel<GetModelValue<typeof options.value, string, M>>({
    required: true,
 })
-const options = ref<SelectItem[]>([])
+const options = ref<SelectMenuItem[]>([])
 const localLoading = shallowRef(false)
+const query = ref<Record<string, string | undefined>>({
+   search: undefined,
+})
 
 async function fetchData() {
    localLoading.value = true
    try {
-      const response = await $api(`/api/statuses`, {
+      const response = await $api(`/api/users/options`, {
          method: "get",
+         query: query.value,
       })
       options.value = response.data.map((item) => {
          return {
-            label: item.name,
-            value: item.id,
+            label: item.label,
+            value: item.value,
+            description: item.meta.email,
+            avatar: {
+               text: item.label.charAt(0),
+            },
          }
       })
    } catch (e) {
+      console.error(e)
       appStore.notify({
          title: "Error",
-         description: "Failed to fetch statuses",
+         description: "Failed to fetch user options",
          color: "error",
       })
    } finally {
@@ -46,17 +55,21 @@ async function fetchData() {
    }
 }
 
+const loading = computed(() => props.loading || localLoading.value)
+
 onMounted(async () => {
    await fetchData()
 })
 </script>
 
 <template>
-   <USelect
+   <USelectMenu
       v-model="model"
       :items="options"
       :label-key="props.labelKey"
       :value-key="props.valueKey"
       :placeholder="props.placeholder"
+      v-model:search-term="query.search"
+      :loading
    />
 </template>

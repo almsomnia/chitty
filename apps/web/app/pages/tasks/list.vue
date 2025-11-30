@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DetailTask, UBadge } from "#components"
 import type { DropdownMenuItem, SelectProps } from "#ui/types"
+import type { CreateTaskSchema } from "#shared/utils/validation-schemas/tasks"
 
 const appStore = useAppStore()
 const dayjs = useDayjs()
@@ -75,6 +76,7 @@ const columns: TableColumn<Model.Task>[] = [
       accessorKey: "due_date",
       header: "Due Date",
       cell: ({ row }) => {
+         if (!row.original.due_date) return ""
          const now = dayjs()
          const dueDate = dayjs(row.original.due_date)
          const isPastDueDate = now.diff(dueDate) > 0
@@ -118,6 +120,48 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
       },
    ]
 }
+
+const formLoading = shallowRef(false)
+function onOpenForm(data?: Model.Task) {
+   appStore.showDialog(
+      "Task Form",
+      h(resolveComponent("FormTask"), {
+         loading: formLoading,
+         onSubmit: async (values: CreateTaskSchema) => {
+            try {
+               formLoading.value = true
+               const response = await createTask(values)
+               appStore.notify({
+                  title: "Success",
+                  description: response.meta.message,
+                  color: "success"
+               })
+               appStore.closeDialog()
+               await refresh()
+            } catch (e) {
+               console.error(e)
+               appStore.notify({
+                  title: "Error",
+                  description: "Failed to submit task",
+                  color: "error"
+               })
+            } finally {
+               formLoading.value = false
+            }
+         }
+      }),
+      {
+         class: /* @tw */ "w-6xl"
+      }
+   )
+}
+
+async function createTask(payload: CreateTaskSchema) {
+   return await $api(`/api/tasks`, {
+      method: "post",
+      body: payload
+   })
+}
 </script>
 
 <template>
@@ -142,6 +186,7 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
                   <SelectTaskPriority
                      v-model="query.priority"
                      class="flex-1"
+                     placeholder="Priority"
                   />
                   <UTooltip
                      v-if="!!query.priority"
@@ -160,6 +205,7 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
                   <SelectStatus
                      v-model="query.status_id"
                      class="flex-1"
+                     placeholder="Status"
                   />
                   <UTooltip
                      v-if="!!query.status_id"
@@ -178,6 +224,7 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
                   <UButton
                      label="New Task"
                      icon="lucide:plus"
+                     @click="() => onOpenForm()"
                   />
                </div>
             </div>

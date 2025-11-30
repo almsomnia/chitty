@@ -30,7 +30,12 @@ const isPastDueDate = computed(() => {
             <div class="flex gap-4">
                <div class="w-1/3 text-toned font-medium">Status</div>
                <div class="flex-1">
-                  {{ props.data.status_id }}
+                  <UBadge
+                     :color="$resolveTaskStatusColor(props.data.status)"
+                     variant="subtle"
+                  >
+                     {{ props.data.status.name }}
+                  </UBadge>
                </div>
             </div>
             <div class="flex gap-4">

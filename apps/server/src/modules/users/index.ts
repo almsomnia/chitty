@@ -66,3 +66,15 @@ export default new Elysia({ prefix: "users" })
          }),
       }
    )
+   .get(
+      "/options",
+      async ({ response, query }) => {
+         const result = await userService.getOptions(query)
+         return response(result)
+      },
+      {
+         query: t.Object({
+            search: t.Optional(t.String())
+         })
+      }
+   )
