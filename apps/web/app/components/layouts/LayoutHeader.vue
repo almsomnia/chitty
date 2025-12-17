@@ -5,7 +5,7 @@ const user = computed(() => authStore.user)
 
 <template>
    <header
-      class="h-(--header-height) bg-default/75 backdrop-blur-sm"
+      class="h-(--header-height) bg-default/75 dark:bg-muted backdrop-blur-sm"
    >
       <div class="px-4 flex items-center justify-between h-full">
          <span class="font-bold">Chitty</span>

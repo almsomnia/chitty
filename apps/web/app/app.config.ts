@@ -12,6 +12,11 @@ export default defineAppConfig({
             icon: "lucide:clipboard",
          },
          {
+            label: "Task Kanban",
+            to: "/tasks/kanban",
+            icon: "lucide:clipboard"
+         },
+         {
             label: "Users",
             to: "/users",
             icon: "lucide:users"

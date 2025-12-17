@@ -3,7 +3,7 @@ const menu = useAppConfig().menu
 </script>
 
 <template>
-   <aside class="bg-default w-(--sidebar-width)">
+   <aside class="bg-default dark:bg-muted w-(--sidebar-width)">
       <div class="h-(--header-height)">
          <div class="flex items-center h-full px-4">
             <span class="font-bold">Chitty</span>

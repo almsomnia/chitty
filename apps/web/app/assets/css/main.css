@@ -7,5 +7,5 @@
 }
 
 body {
-   @apply bg-muted;
+   @apply bg-muted dark:bg-default;
 }
