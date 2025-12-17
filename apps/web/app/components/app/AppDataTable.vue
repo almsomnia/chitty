@@ -51,7 +51,7 @@ const to = computed(() => {
       >
          <div class="">
             <span class="text-sm text-muted">
-               {{ from }}-{{ to }} of {{ props.total }}
+               {{ from }}-{{ to < props.total ? to : props.total }} of {{ props.total }}
             </span>
          </div>
          <div class="flex items-center gap-2">

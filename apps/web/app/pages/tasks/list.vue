@@ -11,7 +11,7 @@ const query = ref<API.Query>({
    per_page: 10,
    title: undefined,
    priority: undefined,
-   status: undefined
+   status: undefined,
 })
 
 const { data, pending, refresh } = await useLazyFetch(`/api/tasks`, {
@@ -134,7 +134,7 @@ function onOpenForm(data?: Model.Task) {
                appStore.notify({
                   title: "Success",
                   description: response.meta.message,
-                  color: "success"
+                  color: "success",
                })
                appStore.closeDialog()
                await refresh()
@@ -143,15 +143,15 @@ function onOpenForm(data?: Model.Task) {
                appStore.notify({
                   title: "Error",
                   description: "Failed to submit task",
-                  color: "error"
+                  color: "error",
                })
             } finally {
                formLoading.value = false
             }
-         }
+         },
       }),
       {
-         class: /* @tw */ "w-6xl"
+         class: /* @tw */ "w-6xl",
       }
    )
 }
@@ -159,7 +159,7 @@ function onOpenForm(data?: Model.Task) {
 async function createTask(payload: CreateTaskSchema) {
    return await $api(`/api/tasks`, {
       method: "post",
-      body: payload
+      body: payload,
    })
 }
 </script>
@@ -182,7 +182,7 @@ async function createTask(payload: CreateTaskSchema) {
                   placeholder="Search..."
                   class="w-3xs"
                />
-               <div class="w-40 flex items-center gap-2">
+               <UFieldGroup class="w-40">
                   <SelectTaskPriority
                      v-model="query.priority"
                      class="flex-1"
@@ -194,14 +194,14 @@ async function createTask(payload: CreateTaskSchema) {
                   >
                      <UButton
                         color="neutral"
-                        variant="link"
+                        variant="outline"
                         icon="lucide:x"
                         size="sm"
                         @click.stop="query.priority = undefined"
                      />
                   </UTooltip>
-               </div>
-               <div class="w-40 flex items-center gap-2">
+               </UFieldGroup>
+               <UFieldGroup class="w-40">
                   <SelectStatus
                      v-model="query.status_id"
                      class="flex-1"
@@ -213,13 +213,13 @@ async function createTask(payload: CreateTaskSchema) {
                   >
                      <UButton
                         color="neutral"
-                        variant="link"
+                        variant="outline"
                         icon="lucide:x"
                         size="sm"
                         @click.stop="query.status_id = undefined"
                      />
                   </UTooltip>
-               </div>
+               </UFieldGroup>
                <div class="flex-1 flex justify-end">
                   <UButton
                      label="New Task"
