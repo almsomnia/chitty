@@ -3,9 +3,12 @@ const menu = useAppConfig().menu
 </script>
 
 <template>
-   <aside
-      class="bg-default w-(--sidebar-width) mt-(--header-height)"
-   >
+   <aside class="bg-default w-(--sidebar-width)">
+      <div class="h-(--header-height)">
+         <div class="flex items-center h-full px-4">
+            <span class="font-bold">Chitty</span>
+         </div>
+      </div>
       <div class="h-full p-2">
          <UNavigationMenu
             orientation="vertical"

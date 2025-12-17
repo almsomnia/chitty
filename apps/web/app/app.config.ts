@@ -21,6 +21,7 @@ export default defineAppConfig({
    ui: {
       colors: {
          primary: "fuchsia",
+         secondary: "emerald",
          neutral: "zinc"
       },
       modal: {
@@ -30,6 +31,21 @@ export default defineAppConfig({
                   content: /* @tw */ "min-w-lg max-w-[calc(100vw-2rem)] rounded-lg shadow-lg ring ring-default"
                }
             }
+         }
+      },
+      card: {
+         slots: {
+            root: "rounded-xl"
+         },
+         variants: {
+            variant: {
+               shadow: {
+                  root: /* @tw */ "bg-default divide-y divide-default shadow"
+               }
+            }
+         },
+         defaultVariants: {
+            variant: "shadow"
          }
       }
    }
