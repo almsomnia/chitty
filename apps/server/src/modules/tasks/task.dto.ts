@@ -19,6 +19,11 @@ export const createTaskDto = t.Object({
 
 export type CreateTaskDto = Static<typeof createTaskDto>
 
-export const updateTaskDto = createTaskDto
+export const updateTaskDto = t.Composite([
+   t.Omit(createTaskDto, ["title"]),
+   t.Object({
+      title: t.Optional(t.String())
+   })
+])
 
 export type UpdateTaskDto = Static<typeof updateTaskDto>

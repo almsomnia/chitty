@@ -27,7 +27,7 @@ export default defineAppConfig({
       colors: {
          primary: "fuchsia",
          secondary: "emerald",
-         neutral: "zinc"
+         neutral: "gray"
       },
       modal: {
          variants: {
@@ -45,7 +45,7 @@ export default defineAppConfig({
          variants: {
             variant: {
                shadow: {
-                  root: /* @tw */ "bg-default divide-y divide-default shadow"
+                  root: /* @tw */ "bg-default dark:bg-muted divide-y divide-default shadow"
                }
             }
          },

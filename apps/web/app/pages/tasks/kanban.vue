@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DetailTask } from "#components"
+import Draggable from "vuedraggable"
 
 type TaskByStatus = {
    status: Model.Status
@@ -64,7 +65,7 @@ function formatDate(date: string | null) {
 function resolveContainerCardColor(status: Model.Status) {
    switch (status.type) {
       case "IDLE":
-         return /* @tw */ "bg-elevated dark:bg-muted/50 divide-muted"
+         return /* @tw */ "bg-muted border border-default dark:border-0 dark:bg-muted/25 divide-muted"
       case "ACTIVE":
          return /* @tw */ "bg-info-100/50 dark:bg-info-950/35 divide-info-200 dark:divide-info-900"
       case "CLOSE":
@@ -83,7 +84,7 @@ function resolveDateBadgeColor(date: string | null) {
 }
 
 function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
-   if (priority === "LOW") return "success"
+   if (priority === "LOW") return "neutral"
    if (priority === "MEDIUM") return "warning"
    return "error"
 }
@@ -104,6 +105,35 @@ function onTaskDetail(task: Model.Task) {
 function onDueDateBadgeClick(task: Model.Task) {
    alert("hehe")
 }
+
+async function onDragEnd(event: any) {
+   const fromStatusId = Number(event.from.dataset.statusId)
+   const toStatusId = Number(event.to.dataset.statusId)
+   const taskId = Number(event.item.dataset.taskId)
+
+   if (fromStatusId == toStatusId) return
+   if (
+      Number.isNaN(fromStatusId)
+      || Number.isNaN(toStatusId)
+      || Number.isNaN(taskId)
+   )
+      return
+
+   await $api(`/api/tasks/${taskId}`, {
+      method: "put",
+      body: {
+         status_id: toStatusId,
+      },
+   })
+
+   const status = statuses.value?.find((s) => s.id == toStatusId)
+
+   appStore.notify({
+      title: "Task moved",
+      description: `Task #${taskId} moved to ${status?.name}`,
+      color: "success",
+   })
+}
 </script>
 
 <template>
@@ -119,7 +149,7 @@ function onDueDateBadgeClick(task: Model.Task) {
                      body: 'sm:p-4 flex flex-col flex-1 min-h-0 -m-1',
                      root: [
                         resolveContainerCardColor(item.status),
-                        'max-h-full flex flex-col overflow-hidden'
+                        'max-h-full flex flex-col overflow-hidden',
                      ],
                   }"
                >
@@ -130,10 +160,20 @@ function onDueDateBadgeClick(task: Model.Task) {
                         icon="lucide:circle"
                      />
                   </div>
-                  <div class="space-y-2 overflow-y-auto overscroll-contain flex-1 scrollbar-thin min-h-0 p-1">
-                     <template v-for="task in item.tasks">
+                  <Draggable
+                     v-model="item.tasks"
+                     item-key="id"
+                     group="tasks"
+                     class="space-y-2 overflow-y-auto overscroll-contain flex-1 scrollbar-thin min-h-0 p-1"
+                     ghost-class="opacity-40"
+                     drag-class="cursor-grabbing"
+                     :data-status-id="item.status.id"
+                     @end="onDragEnd($event)"
+                  >
+                     <template #item="{ element: task }">
                         <UCard
-                           variant="outline"
+                           variant="shadow"
+                           :data-task-id="task.id"
                            :ui="{
                               root: 'rounded-lg cursor-pointer',
                               body: 'sm:p-2',
@@ -181,6 +221,16 @@ function onDueDateBadgeClick(task: Model.Task) {
                            </div>
                         </UCard>
                      </template>
+                  </Draggable>
+                  <div class="mt-2">
+                     <UButton
+                        variant="ghost"
+                        :color="$resolveTaskStatusColor(item.status)"
+                        icon="lucide:plus"
+                        block
+                     >
+                        Add Task
+                     </UButton>
                   </div>
                </UCard>
             </div>
