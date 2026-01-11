@@ -1,10 +1,10 @@
-import { Elysia, t } from "elysia"
+import { Elysia, t, type Context } from "elysia"
 import { wsService } from "./ws.service"
 
 const ws = new Elysia().ws("/ws", {
    body: t.Object({
       type: t.String(),
-      data: t.Any(),
+      data: t.Nullable(t.Any()),
    }),
    response: t.Object({
       type: t.String(),
@@ -16,19 +16,15 @@ const ws = new Elysia().ws("/ws", {
       const response = {
          type: "connection",
          data: {
-            message: "Connected"
+            message: "Connected",
          },
-         time: Date.now()
+         time: Date.now(),
       }
       ws.send(response)
    },
    message(ws, message) {
       console.log(`[WS] Message from ${ws.id}:`, message)
-      const response = wsService.resolveMessage(message)
-      ws.send({
-         ...response,
-         time: Date.now()
-      })
+      wsService.handleMessage(ws, message)
    },
    close(ws) {
       console.log(`[WS] Close: ${ws.id}`)

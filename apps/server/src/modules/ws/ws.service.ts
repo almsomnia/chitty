@@ -1,15 +1,45 @@
+import type { ElysiaWS } from "elysia/dist/ws"
+import { taskService } from "../tasks/task.service"
+
 type Message<T = any> = {
    type: string
    data: T
 }
 
-export const wsService = {
-   resolveMessage: (message: Message) => {
+export abstract class wsService {
+   public static async handleMessage(ws: ElysiaWS, message: Message) {
       switch (message.type) {
          case "ping":
-            return { type: "pong", data: null }
+            this.sendMessage(ws, { type: "pong", data: null })
+            break
+         case "subscribe:task":
+            ws.subscribe("task")
+            this.sendMessage(ws, {
+               type: "subscribe:task",
+               data: { message: "Subscribed" },
+            })
+            break
+         case "task:update":
+            await taskService.update(message.data.id, {
+               status_id: message.data.status_id,
+            })
+            this.sendMessage(ws, {
+               type: message.type,
+               data: {
+                  message: "Task updated"
+               }
+            })
+            break
          default:
-            return message
+            this.sendMessage(ws, message)
+            break
       }
+   }
+
+   private static sendMessage(ws: ElysiaWS, message: Message) {
+      ws.send({
+         ...message,
+         time: Date.now(),
+      })
    }
 }
