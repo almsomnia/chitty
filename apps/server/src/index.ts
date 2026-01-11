@@ -5,6 +5,7 @@ import userModules from "@/modules/users"
 import authModules from "@/modules/auth"
 import taskModules from "@/modules/tasks"
 import statusModules from "@/modules/statuses"
+import wsModules from "@/modules/ws"
 
 const port = import.meta.env.SERVER_PORT ?? 3080
 
@@ -13,6 +14,7 @@ const app = new Elysia({
    normalize: true,
 })
    .use(pluginProvider)
+   .use(wsModules)
    .error({ HttpError })
    .onError((ctx) => {
       const { error, code, response } = ctx
@@ -34,8 +36,8 @@ const app = new Elysia({
          default:
             return response(null, {
                error:
-                  ("message" in error && error.message) ||
-                  "Internal server error",
+                  ("message" in error && error.message)
+                  || "Internal server error",
                code: 500,
             })
       }
