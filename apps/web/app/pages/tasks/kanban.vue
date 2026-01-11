@@ -65,7 +65,7 @@ function formatDate(date: string | null) {
 function resolveContainerCardColor(status: Model.Status) {
    switch (status.type) {
       case "IDLE":
-         return /* @tw */ "bg-muted border border-default dark:border-0 dark:bg-muted/25 divide-muted"
+         return /* @tw */ "bg-accented/25 border border-default dark:border-0 dark:bg-elevated/25 divide-muted"
       case "ACTIVE":
          return /* @tw */ "bg-info-100/50 dark:bg-info-950/35 divide-info-200 dark:divide-info-900"
       case "CLOSE":
@@ -172,27 +172,18 @@ async function onDragEnd(event: any) {
                   >
                      <template #item="{ element: task }">
                         <UCard
-                           variant="shadow"
+                           variant="soft"
                            :data-task-id="task.id"
                            :ui="{
-                              root: 'rounded-lg cursor-pointer',
+                              root: 'rounded-lg cursor-pointer bg-default dark:bg-elevated',
                               body: 'sm:p-2',
                            }"
                            @click="onTaskDetail(task)"
                         >
                            <div class="flex flex-col gap-2 select-none">
-                              <UTooltip
-                                 :text="task.title"
-                                 arrow
-                                 :ui="{
-                                    content: 'max-w-md h-auto bg-inverted',
-                                    text: 'whitespace-normal max-w-md text-inverted',
-                                 }"
-                              >
-                                 <p class="text-sm line-clamp-2 font-medium">
-                                    {{ task.title }}
-                                 </p>
-                              </UTooltip>
+                              <p class="text-sm line-clamp-2 font-medium">
+                                 {{ task.title }}
+                              </p>
                               <div class="flex items-center gap-2">
                                  <UAvatar
                                     :text="task.assignee?.name.charAt(0)"

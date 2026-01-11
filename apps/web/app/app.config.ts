@@ -44,13 +44,13 @@ export default defineAppConfig({
          },
          variants: {
             variant: {
-               shadow: {
-                  root: /* @tw */ "bg-default dark:bg-muted divide-y divide-default shadow"
+               outline: {
+                  root: "dark:bg-elevated/25"
                }
             }
          },
          defaultVariants: {
-            variant: "shadow"
+            variant: "outline"
          }
       }
    }
