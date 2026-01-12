@@ -24,7 +24,12 @@ watch(data, (newValue) => {
          if (!tasks.value.some((t) => t.id === message.data.id)) {
             tasks.value.push(message.data)
             totalTasks.value++
-            tasks.value.sort((a, b) => a.rank.localeCompare(b.rank))
+            tasks.value = tasks.value.toSorted((a, b) => {
+               if (!a.rank || !b.rank) {
+                  return 0
+               }
+               return a.rank.localeCompare(b.rank)
+            })
          }
       }
 
@@ -44,8 +49,13 @@ watch(data, (newValue) => {
                totalTasks.value++
             }
             // Re-sort based on new rank
-            tasks.value.sort((a, b) => a.rank.localeCompare(b.rank))
-         } 
+            tasks.value = tasks.value.toSorted((a, b) => {
+               if (!a.rank || !b.rank) {
+                  return 0
+               }
+               return a.rank.localeCompare(b.rank)
+            })
+         }
          // Task no longer belongs to this column
          else if (index !== -1) {
             tasks.value.splice(index, 1)
@@ -140,6 +150,7 @@ function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
 }
 
 async function onChange(event: any) {
+   console.log("🚀 ~ :104 ~ onChange ~ event:", event)
    if (event.removed) {
       totalTasks.value--
    }
