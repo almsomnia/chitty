@@ -7,17 +7,6 @@ const { close, data, send } = useWS({
    },
 })
 
-watch(data, (values) => {
-   if (!values) return
-   const _data = JSON.parse(values)
-   if (_data.type === "task:update") {
-      appStore.notify({
-         title: "Success",
-         description: _data.data.message
-      })
-   }
-})
-
 const { data: statuses, execute: fetchStatuses } = await useLazyFetch(
    "/api/statuses",
    {

@@ -16,13 +16,16 @@ watch(data, (newValue) => {
    try {
       const message = JSON.parse(newValue)
       if (
-         message.type === "task:created"
-         && message.data.status_id === props.status.id
+         message.type === "task:create"
+         && message.data.task.status_id === props.status.id
       ) {
-         tasks.value.push(message.data)
+         tasks.value.push(message.data.task)
+         appStore.notify({
+            title: message.data.message,
+            color: "success",
+         })
       }
-   }
-   catch (error) {
+   } catch (error) {
       console.error("Failed to parse WS message", error)
    }
 })
@@ -140,12 +143,12 @@ function onDueDateBadgeClick(task: Model.Task) {
 
 const isAddingTask = ref(false)
 const newTaskTitle = ref("")
-const newTaskInputRef = ref<any>(null)
+const newTaskInputRef = useTemplateRef("newTaskInputRef")
 
 function startAddingTask() {
    isAddingTask.value = true
    nextTick(() => {
-      newTaskInputRef.value?.textarea?.focus()
+      newTaskInputRef.value?.textareaRef?.focus()
    })
 }
 
@@ -173,7 +176,7 @@ function createTask() {
 
    newTaskTitle.value = ""
    nextTick(() => {
-      newTaskInputRef.value?.textarea?.focus()
+      isAddingTask.value = false
    })
 }
 </script>
@@ -246,7 +249,10 @@ function createTask() {
                </UCard>
             </template>
          </Draggable>
-         <div v-if="isAddingTask" class="mt-2 p-1">
+         <div
+            v-if="isAddingTask"
+            class="mt-2 p-1"
+         >
             <UCard
                variant="soft"
                :ui="{
@@ -261,7 +267,6 @@ function createTask() {
                   :rows="1"
                   placeholder="What needs to be done?"
                   variant="none"
-                  :ui="{ padding: { sm: 'p-0' } }"
                   @keydown.enter.prevent="createTask"
                   @keydown.esc="cancelAddingTask"
                />
@@ -279,20 +284,24 @@ function createTask() {
                      color="primary"
                      :disabled="!newTaskTitle.trim()"
                      @click="createTask"
+                     trailing-icon="uil:enter"
                   >
                      Create
                   </UButton>
                </div>
             </UCard>
          </div>
-         <div v-else class="mt-2">
+         <div
+            v-else
+            class="mt-2"
+         >
             <UButton
                variant="ghost"
                :color="$resolveTaskStatusColor(props.status)"
                icon="lucide:plus"
                block
                :ui="{
-                  base: 'h-12'
+                  base: 'h-12',
                }"
                @click="startAddingTask"
             >
