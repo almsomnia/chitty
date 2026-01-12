@@ -63,11 +63,12 @@ watch(data, (newValue) => {
       }
 
       // Handle Confirmation: Notify the creator
-      if (message.type === "task:create") {
+      if (message.type === "task:create" && message.data.task.status_id == props.status.id) {
          appStore.notify({
             title: message.data.message,
             color: "success",
          })
+         tasks.value.push(message.data.task)
       }
 
       // Handle Confirmation: Update (do nothing per requirements)

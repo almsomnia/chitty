@@ -1,78 +1,82 @@
 import type { ElysiaWS } from "elysia/dist/ws"
 import { taskService } from "../tasks/task.service"
+import { MessageData, MessageType } from "./ws.dto"
 
-type Message<T = any> = {
-   type: string
-   data: T
-}
+type WSHandler<T extends MessageType> = (
+   ws: ElysiaWS,
+   data: MessageData[T]
+) => Promise<void> | void
 
 export abstract class wsService {
-   public static async handleMessage(ws: ElysiaWS, message: Message) {
-      switch (message.type) {
-         case "ping":
-            this.sendMessage(ws, { type: "pong", data: null })
-            break
-         case "subscribe:task":
-            ws.subscribe("task")
-            this.sendMessage(ws, {
-               type: "subscribe:task",
-               data: { message: "Subscribed" },
-            })
-            break
-         case "task:update":
-            const updatedTask = await taskService.update(message.data.id, {
-               status_id: message.data.status_id,
-               rank: message.data.rank,
-            })
-            ws.publish("task", {
-               type: "task:updated",
-               data: updatedTask,
-               time: Date.now(),
-            })
-            this.sendMessage(ws, {
-               type: message.type,
-               data: {
-                  message: "Task updated"
-               }
-            })
-            break
-         case "task:create":
-            const newTask = await taskService.create(message.data)
-            ws.publish("task", {
-               type: "task:created",
-               data: newTask,
-               time: Date.now(),
-            })
-            this.sendMessage(ws, {
-               type: "task:create",
-               data: {
-                  message: "Task created",
-                  task: newTask,
-               },
-            })
-            break
-         case "task:publish-updated":
-            ws.publish("task", {
-               type: "task:updated",
-               data: message.data,
-               time: Date.now(),
-            })
-            ws.send({
-               type: "task:updated",
-               data: message.data,
-               time: Date.now()
-            })
-            break
-         default:
-            this.sendMessage(ws, message)
-            break
-      }
-   }
-
-   private static sendMessage(ws: ElysiaWS, message: Message) {
+   private static emit(ws: ElysiaWS, type: string, data: any) {
       ws.send({
-         ...message,
+         type,
+         data,
          time: Date.now(),
       })
+   }
+
+   private static broadcast(
+      ws: ElysiaWS,
+      topic: string,
+      type: string,
+      data: any
+   ) {
+      ws.publish(topic, {
+         type,
+         data,
+         time: Date.now(),
+      })
+   }
+
+   private static handlers: { [K in MessageType]?: WSHandler<K> } = {
+      ping: (ws) => this.emit(ws, "pong", null),
+      "subscribe:task": (ws) => {
+         ws.subscribe("task")
+         this.emit(ws, "subscribe:task", { message: "Subscribed" })
+      },
+      "task:update": async (ws, data) => {
+         const updatedTask = await taskService.update(data.id, data)
+         this.broadcast(ws, "task", "task:updated", updatedTask)
+         this.emit(ws, "task:update", {
+            message: "Task updated",
+            data: updatedTask,
+         })
+      },
+      "task:create": async (ws, data) => {
+         const newTask = await taskService.create(data)
+         this.broadcast(ws, "task", "task:created", newTask)
+         this.emit(ws, "task:create", {
+            message: "Task created",
+            task: newTask,
+         })
+      },
+      "task:publish-updated": async (ws, data) => {
+         this.broadcast(ws, "task", "task:updated", data)
+         this.emit(ws, "task:updated", data)
+      },
+   }
+
+   private static executeHandler<K extends MessageType>(
+      key: K,
+      ws: ElysiaWS,
+      data: any
+   ) {
+      const handler = this.handlers[key] as WSHandler<K>
+      if (handler) return handler(ws, data)
+      else this.emit(ws, "error", { message: "Unknown command type" })
+   }
+
+   public static async handleMessage(
+      ws: ElysiaWS,
+      message: { type: MessageType; data: any }
+   ) {
+      try {
+         const type = message.type as MessageType
+         await this.executeHandler(type, ws, message.data)
+      } catch (error) {
+         console.error("Failed to handle WS message", error)
+         this.emit(ws, "error", { message: "Failed to handle WS message" })
+      }
    }
 }
