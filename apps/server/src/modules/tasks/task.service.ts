@@ -76,10 +76,24 @@ export const taskService = {
 
    create: async (payload: CreateTaskDto) => {
       try {
-         const result = await db
+         const [inserted] = await db
             .insert(table.tasks)
             .values(payload)
             .returning(columns)
+
+         const [result] = await db
+            .select({
+               ...columns,
+               assignee: userColumns,
+               status: statusColumns,
+            })
+            .from(table.tasks)
+            .leftJoin(table.users, eq(table.users.id, table.tasks.assignee_id))
+            .leftJoin(
+               table.statuses,
+               eq(table.statuses.id, table.tasks.status_id)
+            )
+            .where(eq(table.tasks.id, inserted.id))
 
          return result
       } catch (e) {

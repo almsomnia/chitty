@@ -31,6 +31,21 @@ export abstract class wsService {
                }
             })
             break
+         case "task:create":
+            const newTask = await taskService.create(message.data)
+            ws.publish("task", {
+               type: "task:created",
+               data: newTask,
+               time: Date.now(),
+            })
+            this.sendMessage(ws, {
+               type: "task:create",
+               data: {
+                  message: "Task created",
+                  task: newTask,
+               },
+            })
+            break
          default:
             this.sendMessage(ws, message)
             break
