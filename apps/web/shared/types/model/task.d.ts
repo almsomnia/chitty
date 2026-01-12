@@ -8,6 +8,7 @@ declare namespace Model {
       assignee_id: Model.User["id"] | null
       assignee: Model.User | null
       due_date: string | null
+      rank: string | null
       priority: "LOW" | "MEDIUM" | "HIGH"
       created_at: string
       updated_at: string

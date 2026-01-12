@@ -30,6 +30,7 @@
     "apps/web": {
       "name": "web",
       "dependencies": {
+        "@dalet-oss/lexorank": "^1.1.1",
         "@nuxt/ui": "^4.2.1",
         "@pinia/nuxt": "0.11.3",
         "dayjs-nuxt": "2.1.11",

@@ -22,6 +22,7 @@ export abstract class wsService {
          case "task:update":
             await taskService.update(message.data.id, {
                status_id: message.data.status_id,
+               rank: message.data.rank,
             })
             this.sendMessage(ws, {
                type: message.type,

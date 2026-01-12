@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Draggable from "vuedraggable"
 import { DetailTask } from "#components"
+import { lexorank } from "#shared/utils/lexorank"
 
 const props = defineProps<{
    status: Model.Status
@@ -71,26 +72,36 @@ function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
    return "error"
 }
 
-async function onDragEnd(event: any) {
-   const fromStatusId = Number(event.from.dataset.statusId)
-   const toStatusId = Number(event.to.dataset.statusId)
-   const taskId = Number(event.item.dataset.taskId)
+async function onChange(event: any) {
+   if (event.added) {
+      const { element, newIndex } = event.added
+      await handleTaskUpdate(element, newIndex)
+   }
+   if (event.moved) {
+      const { element, newIndex } = event.moved
+      await handleTaskUpdate(element, newIndex)
+   }
+}
 
-   if (fromStatusId == toStatusId) return
-   if (
-      Number.isNaN(fromStatusId)
-      || Number.isNaN(toStatusId)
-      || Number.isNaN(taskId)
-   )
-      return
+async function handleTaskUpdate(task: Model.Task, index: number) {
+   const prevTask = tasks.value[index - 1]
+   const nextTask = tasks.value[index + 1]
+   const prevRank = prevTask ? prevTask.rank : null
+   const nextRank = nextTask ? nextTask.rank : null
+
+   const newRank = lexorank.getRankBetween(prevRank, nextRank) as string
+
+   task.rank = newRank
+   task.status_id = props.status.id
 
    send(
       JSON.stringify({
          type: "task:update",
          data: {
-            id: taskId,
-            status_id: toStatusId,
-         }
+            id: task.id,
+            status_id: props.status.id,
+            rank: newRank,
+         },
       })
    )
 }
@@ -139,7 +150,7 @@ function onDueDateBadgeClick(task: Model.Task) {
             ghost-class="opacity-40"
             drag-class="cursor-grabbing"
             :data-status-id="props.status.id"
-            @end="onDragEnd($event)"
+            @change="onChange"
          >
             <template #item="{ element: task }">
                <UCard
