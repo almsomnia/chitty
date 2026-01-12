@@ -7,9 +7,25 @@ const props = defineProps<{
    status: Model.Status
 }>()
 
-const { send } = useWS()
+const { send, data } = useWS()
 
 const appStore = useAppStore()
+
+watch(data, (newValue) => {
+   if (!newValue) return
+   try {
+      const message = JSON.parse(newValue)
+      if (
+         message.type === "task:created"
+         && message.data.status_id === props.status.id
+      ) {
+         tasks.value.push(message.data)
+      }
+   }
+   catch (error) {
+      console.error("Failed to parse WS message", error)
+   }
+})
 
 const tasks = ref<Model.Task[]>([])
 const page = shallowRef(1)
