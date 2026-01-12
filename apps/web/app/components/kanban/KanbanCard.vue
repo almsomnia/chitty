@@ -20,6 +20,7 @@ watch(data, (newValue) => {
          && message.data.task.status_id === props.status.id
       ) {
          tasks.value.push(message.data.task)
+         totalTasks.value++
          appStore.notify({
             title: message.data.message,
             color: "success",
@@ -31,8 +32,11 @@ watch(data, (newValue) => {
 })
 
 const tasks = ref<Model.Task[]>([])
+const totalTasks = shallowRef(0)
 const page = shallowRef(1)
-const hasMoreData = shallowRef(true)
+const hasMoreData = computed(() => {
+   return tasks.value.length < totalTasks.value
+})
 
 async function fetchTasks(status: Model.Status) {
    const response = await $api<API.Response<API.Paginate<Model.Task[]>>>(
@@ -41,18 +45,23 @@ async function fetchTasks(status: Model.Status) {
          method: "get",
          query: {
             page: page.value,
+            per_page: 10,
             status_id: status.id,
          },
       }
    )
 
-   if (response.data.to >= response.data.total) {
-      hasMoreData.value = false
-   }
-
    tasks.value.push(...response.data.data)
+   totalTasks.value = response.data.total
    page.value++
 }
+
+const fetchTrigger = useTemplateRef("fetchTrigger")
+useIntersectionObserver(fetchTrigger, ([entry], el) => {
+   if (entry?.isIntersecting && hasMoreData.value) {
+      fetchTasks(props.status)
+   }
+})
 
 onMounted(async () => {
    await fetchTasks(props.status)
@@ -67,11 +76,11 @@ function formatDate(date: string | null) {
 function resolveContainerCardColor(status: Model.Status) {
    switch (status.type) {
       case "IDLE":
-         return /* @tw */ "bg-accented/25 border border-default dark:border-0 dark:bg-elevated/25 divide-muted"
+         return /* @tw */ "bg-accented/25 border border-default dark:border-0 dark:bg-elevated/25 divide-muted [&_.ct--task-count]:text-elevated"
       case "ACTIVE":
-         return /* @tw */ "bg-info-100/50 dark:bg-info-950/35 divide-info-200 dark:divide-info-900"
+         return /* @tw */ "bg-info-100/50 dark:bg-info-950/35 divide-info-200 dark:divide-info-900 [&_.ct--task-count]:text-info"
       case "CLOSE":
-         return /* @tw */ "bg-success-100/50 dark:bg-success-950/35 divide-success-200 dark:divide-success-900"
+         return /* @tw */ "bg-success-100/50 dark:bg-success-950/35 divide-success-200 dark:divide-success-900 [&_.ct--task-count]:text-success"
       default:
          throw new Error("Invalid status type")
    }
@@ -92,9 +101,14 @@ function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
 }
 
 async function onChange(event: any) {
+   console.log("🚀 ~ :104 ~ onChange ~ event:", event)
+   if (event.removed) {
+      totalTasks.value--
+   }
    if (event.added) {
       const { element, newIndex } = event.added
       await handleTaskUpdate(element, newIndex)
+      totalTasks.value++
    }
    if (event.moved) {
       const { element, newIndex } = event.moved
@@ -193,12 +207,15 @@ function createTask() {
             ],
          }"
       >
-         <div class="mb-2 shrink-0">
+         <div class="mb-2 shrink-0 flex items-center">
             <UBadge
                :label="props.status.name"
                :color="$resolveTaskStatusColor(props.status)"
                icon="lucide:circle"
             />
+            <span class="ms-4 text-sm ct--task-count">
+               {{ totalTasks }}
+            </span>
          </div>
          <Draggable
             v-model="tasks"
@@ -247,6 +264,9 @@ function createTask() {
                      </div>
                   </div>
                </UCard>
+            </template>
+            <template #footer>
+               <div ref="fetchTrigger" />
             </template>
          </Draggable>
          <div
