@@ -51,6 +51,18 @@ export abstract class wsService {
                },
             })
             break
+         case "task:publish-updated":
+            ws.publish("task", {
+               type: "task:updated",
+               data: message.data,
+               time: Date.now(),
+            })
+            ws.send({
+               type: "task:updated",
+               data: message.data,
+               time: Date.now()
+            })
+            break
          default:
             this.sendMessage(ws, message)
             break

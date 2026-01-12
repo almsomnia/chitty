@@ -2,11 +2,11 @@ import z from "../zod"
 
 const create = z.object({
    title: z.string(),
-   description: z.string().optional(),
+   description: z.string().nullish(),
    status_id: z.number(),
-   assignee_id: z.number().optional(),
-   due_date: z.iso.date().optional(),
-   priority: z.string().optional()
+   assignee_id: z.number().nullish(),
+   due_date: z.iso.date().nullish(),
+   priority: z.string().nullish()
 })
 
 const update = create

@@ -49,6 +49,20 @@ const dueDateModel = computed({
    },
 })
 
+onMounted(() => {
+   if (props.data) {
+      for (const i in state.value) {
+         if (i === "due_date" && props.data.due_date) {
+            state.value.due_date = useDayjs()(props.data.due_date).format(
+               "YYYY-MM-DD"
+            )
+         } else {
+            // @ts-ignore
+            state.value[i] = props.data[i]
+         }
+      }
+   }
+})
 </script>
 
 <template>
@@ -56,7 +70,7 @@ const dueDateModel = computed({
       :schema
       :state
       @submit="onSubmit"
-      class="grid grid-cols-3 gap-4"
+      class="grid grid-cols-3 gap-4 items-start"
    >
       <div class="col-span-2">
          <div class="space-y-4">
@@ -67,9 +81,12 @@ const dueDateModel = computed({
                <UTextarea
                   v-model="state.title"
                   :rows="1"
+                  :maxrows="2"
                   autoresize
+                  size="lg"
                   :ui="{
                      root: /* @tw */ 'w-full',
+                     base: 'text-base',
                   }"
                />
             </UFormField>
@@ -83,6 +100,7 @@ const dueDateModel = computed({
                   :loading
                   :rows="3"
                   autoresize
+                  :maxrows="16"
                   :ui="{
                      root: /* @tw */ 'w-full',
                   }"
@@ -90,7 +108,7 @@ const dueDateModel = computed({
             </UFormField>
          </div>
       </div>
-      <div class="space-y-4">
+      <div class="space-y-4 sticky top-0">
          <UFormField
             name="status_id"
             label="Status"
@@ -105,51 +123,51 @@ const dueDateModel = computed({
             label="Priority"
             hint="Optional"
          >
-            <div class="flex items-center gap-2">
+            <UFieldGroup class="w-full">
                <SelectTaskPriority
                   v-model="state.priority"
                   class="w-full"
                />
                <UButton
-                  v-if="!!state.priority"
                   icon="lucide:x"
-                  variant="link"
                   color="neutral"
+                  variant="outline"
                   size="sm"
+                  :disabled="!state.priority"
                   @click="state.priority = undefined"
                />
-            </div>
+            </UFieldGroup>
          </UFormField>
          <UFormField
             name="assignee_id"
             label="Assignee"
             hint="Optional"
          >
-            <div class="flex items-center gap-2">
+            <UFieldGroup class="w-full">
                <SelectUser
                   v-model="state.assignee_id"
                   class="w-full"
                />
                <UButton
-                  v-if="!!state.assignee_id"
                   icon="lucide:x"
-                  variant="link"
+                  variant="outline"
                   color="neutral"
                   size="sm"
+                  :disabled="!state.assignee_id"
                   @click="state.assignee_id = undefined"
                />
-            </div>
+            </UFieldGroup>
          </UFormField>
          <UFormField
             name="due_date"
             label="Due Date"
             hint="Optional"
          >
-            <div class="flex items-center gap-2">
+            <UFieldGroup class="w-full">
                <UInputDate
                   v-model="dueDateModel"
                   :ui="{
-                     base: /* @tw */ 'w-full',
+                     base: /* @tw */ 'w-full rounded-e-none',
                   }"
                   ref="inputDateRef"
                >
@@ -172,17 +190,18 @@ const dueDateModel = computed({
                   </template>
                </UInputDate>
                <UButton
-                  v-if="!!state.due_date"
                   icon="lucide:x"
-                  variant="link"
+                  variant="outline"
                   color="neutral"
                   size="sm"
+                  :disabled="!state.due_date"
                   @click="state.due_date = undefined"
                />
-            </div>
+            </UFieldGroup>
          </UFormField>
       </div>
-      <div class="col-span-full flex items-center justify-end">
+      <div class="col-span-full flex items-center justify-end gap-2">
+         <slot name="actions" />
          <UButton
             type="submit"
             icon="lucide:check"

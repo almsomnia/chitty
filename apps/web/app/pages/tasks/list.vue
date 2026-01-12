@@ -111,6 +111,9 @@ function getRowItems(row: Row<Model.Task>): DropdownMenuItem[] {
                `Task #${row.original.id}`,
                h(DetailTask, {
                   data: row.original,
+                  onRefresh: () => {
+                     refresh()
+                  }
                }),
                {
                   class: /* @tw */ "w-6xl",

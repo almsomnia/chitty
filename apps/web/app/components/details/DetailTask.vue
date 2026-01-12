@@ -1,40 +1,112 @@
 <script setup lang="ts">
+import type { UpdateTaskSchema } from "~~/shared/utils/validation-schemas/tasks"
+
 const props = defineProps<{
-   data: Model.Task
+   data: Model.Task | Ref<Model.Task>
 }>()
 
+const emit = defineEmits<{
+   refresh: [data: Model.Task]
+}>()
+
+const localData = ref<Model.Task>(unref(props.data))
+watch(
+   () => unref(props.data),
+   (val) => {
+      localData.value = val
+   }
+)
+
+const appStore = useAppStore()
 const dayjs = useDayjs()
 
 const isPastDueDate = computed(() => {
-   if (!props.data.due_date) return 0
+   if (!localData.value.due_date) return 0
    const now = dayjs()
-   const dueDate = dayjs(props.data.due_date)
+   const dueDate = dayjs(localData.value.due_date)
    return now.diff(dueDate) > 0
 })
+
+const editMode = shallowRef(false)
+
+async function onUpdate(values: UpdateTaskSchema) {
+   try {
+      const res = await $api<API.Response<Model.Task>>(
+         `/api/tasks/${localData.value.id}`,
+         {
+            method: "put",
+            body: values,
+         }
+      )
+      localData.value = res.data
+      appStore.notify({
+         title: res.meta.message,
+         color: "success",
+      })
+      editMode.value = false
+      emit("refresh", res.data)
+   } catch (e) {}
+}
 </script>
 
 <template>
-   <div class="grid grid-cols-3 gap-4">
-      <div class="col-span-2">
+   <div
+      v-if="!editMode"
+      class="grid grid-cols-3 gap-8 relative items-start"
+   >
+      <div class="col-span-2 w-4/5 mx-auto">
          <div class="space-y-4">
             <h2 class="text-2xl font-semibold text-pretty">
-               {{ props.data.title }}
+               {{ localData.title }}
             </h2>
             <p class="text-toned text-pretty">
-               {{ props.data.description }}
+               {{ localData.description }}
             </p>
          </div>
       </div>
-      <div class="text-sm">
+      <UCard
+         variant="outline"
+         class="text-sm sticky top-0"
+         :ui="{
+            header: 'p-4 sm:px-4',
+         }"
+      >
+         <template #header>
+            <div class="flex items-center justify-between">
+               <span class="text-muted text-sm">
+                  Created
+                  {{ dayjs(localData.created_at).format("DD MMM YYYY") }}
+               </span>
+               <div class="flex items-center gap-1">
+                  <UTooltip text="Edit">
+                     <UButton
+                        @click="editMode = true"
+                        icon="lucide:edit"
+                        size="sm"
+                        variant="link"
+                        color="neutral"
+                     />
+                  </UTooltip>
+                  <UTooltip text="Delete">
+                     <UButton
+                        icon="lucide:trash"
+                        size="sm"
+                        variant="link"
+                        color="error"
+                     />
+                  </UTooltip>
+               </div>
+            </div>
+         </template>
          <div class="space-y-4">
             <div class="flex gap-4">
                <div class="w-1/3 text-toned font-medium">Status</div>
                <div class="flex-1">
                   <UBadge
-                     :color="$resolveTaskStatusColor(props.data.status)"
+                     :color="$resolveTaskStatusColor(localData.status)"
                      variant="subtle"
                   >
-                     {{ props.data.status.name }}
+                     {{ localData.status.name }}
                   </UBadge>
                </div>
             </div>
@@ -42,10 +114,10 @@ const isPastDueDate = computed(() => {
                <div class="w-1/3 text-toned font-medium">Priority</div>
                <div class="flex-1">
                   <UBadge
-                     :color="$resolveTaskPriorityColor(props.data.priority)"
+                     :color="$resolveTaskPriorityColor(localData.priority)"
                      variant="subtle"
                   >
-                     {{ props.data.priority }}
+                     {{ localData.priority }}
                   </UBadge>
                </div>
             </div>
@@ -53,11 +125,11 @@ const isPastDueDate = computed(() => {
                <div class="w-1/3 text-toned font-medium">Assignee</div>
                <div class="flex-1">
                   <UUser
-                     v-if="props.data.assignee"
-                     :name="props.data.assignee.name"
-                     :description="props.data.assignee.email"
+                     v-if="localData.assignee"
+                     :name="localData.assignee.name"
+                     :description="localData.assignee.email"
                      :avatar="{
-                        text: props.data.assignee.name.charAt(0),
+                        text: localData.assignee.name.charAt(0),
                      }"
                   />
                   <span
@@ -71,12 +143,12 @@ const isPastDueDate = computed(() => {
             <div class="flex gap-4">
                <div class="w-1/3 text-toned font-medium">Due Date</div>
                <div class="flex-1">
-                  <div v-if="props.data.due_date">
+                  <div v-if="localData.due_date">
                      <p
                         :class="[isPastDueDate ? 'text-error' : 'text-default']"
                      >
                         {{
-                           dayjs(props.data.due_date).format(
+                           dayjs(localData.due_date).format(
                               "DD MMM YYYY HH:mm"
                            )
                         }}
@@ -89,7 +161,7 @@ const isPastDueDate = computed(() => {
                         {{
                            dayjs
                               .duration({
-                                 milliseconds: dayjs(props.data.due_date).diff(
+                                 milliseconds: dayjs(localData.due_date).diff(
                                     dayjs()
                                  ),
                               })
@@ -106,6 +178,21 @@ const isPastDueDate = computed(() => {
                </div>
             </div>
          </div>
-      </div>
+      </UCard>
    </div>
+   <FormTask
+      v-else
+      :data="localData"
+      @submit="onUpdate"
+   >
+      <template #actions>
+         <UButton
+            label="Cancel"
+            icon="lucide:x"
+            variant="link"
+            color="neutral"
+            @click="editMode = false"
+         />
+      </template>
+   </FormTask>
 </template>

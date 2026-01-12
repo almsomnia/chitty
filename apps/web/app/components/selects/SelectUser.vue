@@ -40,7 +40,11 @@ async function fetchData() {
             description: item.meta.email,
             avatar: {
                text: item.label.charAt(0),
+               size: "sm"
             },
+            ui: {
+               itemLeadingAvatar: "self-center"
+            }
          }
       })
    } catch (e) {

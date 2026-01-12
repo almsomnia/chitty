@@ -5,6 +5,8 @@ const props = defineProps<{
    data: Model.Task
 }>()
 
+const { send } = useWS()
+
 const appStore = useAppStore()
 const dayjs = useDayjs()
 
@@ -36,9 +38,17 @@ function onTaskDetail(task: Model.Task) {
       `Task #${task.id}`,
       h(DetailTask, {
          data: task,
+         onRefresh: (data: Model.Task) => {
+            send(
+               JSON.stringify({
+               type: "task:publish-updated",
+               data: data,
+            })
+            )
+         },
       }),
       {
-         class: /* @tw */ "w-6xl",
+         class: /* @tw */ "w-8xl",
       }
    )
 }

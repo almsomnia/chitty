@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@theme {
+   --container-8xl: 88rem;
+   --container-9xl: 96rem;
+}
+
 :root {
    --header-height: calc(var(--spacing) * 14);
    --sidebar-width: calc(var(--spacing) * 64);

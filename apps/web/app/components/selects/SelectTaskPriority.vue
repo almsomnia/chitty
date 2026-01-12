@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="M extends boolean = false">
-import type { GetItemKeys, GetModelValue, SelectItem } from '#ui/types'
+import type { GetItemKeys, GetModelValue, SelectItem } from "#ui/types"
 
 const props = withDefaults(
    defineProps<{
@@ -14,7 +14,9 @@ const props = withDefaults(
    }
 )
 
-const model = defineModel<GetModelValue<typeof options, string, M>>({ required: true })
+const model = defineModel<GetModelValue<typeof options, string, M>>({
+   required: true,
+})
 
 const options: SelectItem[] = [
    {
