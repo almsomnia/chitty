@@ -20,9 +20,14 @@ export abstract class wsService {
             })
             break
          case "task:update":
-            await taskService.update(message.data.id, {
+            const updatedTask = await taskService.update(message.data.id, {
                status_id: message.data.status_id,
                rank: message.data.rank,
+            })
+            ws.publish("task", {
+               type: "task:updated",
+               data: updatedTask,
+               time: Date.now(),
             })
             this.sendMessage(ws, {
                type: message.type,

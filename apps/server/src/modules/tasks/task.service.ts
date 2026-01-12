@@ -112,14 +112,27 @@ export const taskService = {
             throw new HttpError("Data not found", 404)
          }
 
-         const result = await db
+         await db
             .update(table.tasks)
             .set({
                ...payload,
                updated_at: new Date(),
             })
             .where(eq(columns.id, id))
-            .returning(columns)
+         
+         const [result] = await db
+            .select({
+               ...columns,
+               assignee: userColumns,
+               status: statusColumns,
+            })
+            .from(table.tasks)
+            .leftJoin(table.users, eq(table.users.id, table.tasks.assignee_id))
+            .leftJoin(
+               table.statuses,
+               eq(table.statuses.id, table.tasks.status_id)
+            )
+            .where(eq(table.tasks.id, id))
 
          return result
       } catch (e) {

@@ -24,19 +24,46 @@ watch(data, (newValue) => {
          if (!tasks.value.some((t) => t.id === message.data.id)) {
             tasks.value.push(message.data)
             totalTasks.value++
+            tasks.value.sort((a, b) => a.rank.localeCompare(b.rank))
+         }
+      }
+
+      // Handle Broadcast: Update task (status change or reorder)
+      if (message.type === "task:updated") {
+         const updatedTask = message.data
+         const index = tasks.value.findIndex((t) => t.id === updatedTask.id)
+
+         // Task belongs to this column
+         if (updatedTask.status_id === props.status.id) {
+            if (index !== -1) {
+               // Update existing task
+               tasks.value[index] = updatedTask
+            } else {
+               // Add new task (moved from another column)
+               tasks.value.push(updatedTask)
+               totalTasks.value++
+            }
+            // Re-sort based on new rank
+            tasks.value.sort((a, b) => a.rank.localeCompare(b.rank))
+         } 
+         // Task no longer belongs to this column
+         else if (index !== -1) {
+            tasks.value.splice(index, 1)
+            totalTasks.value--
          }
       }
 
       // Handle Confirmation: Notify the creator
-      if (message.type === "task:create" && message.data.task.status_id === props.status.id) {
-         if (!tasks.value.some((t) => t.id === message.data.id)) {
-            tasks.value.push(message.data)
-            totalTasks.value++
-         }
+      if (message.type === "task:create") {
          appStore.notify({
             title: message.data.message,
             color: "success",
          })
+      }
+
+      // Handle Confirmation: Update (do nothing per requirements)
+      if (message.type === "task:update") {
+         // no-op
       }
    } catch (error) {
       console.error("Failed to parse WS message", error)
