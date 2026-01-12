@@ -121,6 +121,45 @@ function onTaskDetail(task: Model.Task) {
 function onDueDateBadgeClick(task: Model.Task) {
    alert("hehe")
 }
+
+const isAddingTask = ref(false)
+const newTaskTitle = ref("")
+const newTaskInputRef = ref<any>(null)
+
+function startAddingTask() {
+   isAddingTask.value = true
+   nextTick(() => {
+      newTaskInputRef.value?.textarea?.focus()
+   })
+}
+
+function cancelAddingTask() {
+   isAddingTask.value = false
+   newTaskTitle.value = ""
+}
+
+function createTask() {
+   if (!newTaskTitle.value.trim()) return
+
+   const lastTask = tasks.value[tasks.value.length - 1]
+   const newRank = lexorank.getRankBetween(lastTask?.rank, null) as string
+
+   send(
+      JSON.stringify({
+         type: "task:create",
+         data: {
+            title: newTaskTitle.value,
+            status_id: props.status.id,
+            rank: newRank,
+         },
+      })
+   )
+
+   newTaskTitle.value = ""
+   nextTick(() => {
+      newTaskInputRef.value?.textarea?.focus()
+   })
+}
 </script>
 
 <template>
@@ -191,12 +230,55 @@ function onDueDateBadgeClick(task: Model.Task) {
                </UCard>
             </template>
          </Draggable>
-         <div class="mt-2">
+         <div v-if="isAddingTask" class="mt-2 p-1">
+            <UCard
+               variant="soft"
+               :ui="{
+                  root: 'rounded-lg bg-default dark:bg-elevated ring-1 ring-primary-500/50',
+                  body: 'sm:p-2',
+               }"
+            >
+               <UTextarea
+                  ref="newTaskInputRef"
+                  v-model="newTaskTitle"
+                  autoresize
+                  :rows="1"
+                  placeholder="What needs to be done?"
+                  variant="none"
+                  :ui="{ padding: { sm: 'p-0' } }"
+                  @keydown.enter.prevent="createTask"
+                  @keydown.esc="cancelAddingTask"
+               />
+               <div class="flex justify-end items-center mt-2 gap-2">
+                  <UButton
+                     size="xs"
+                     color="neutral"
+                     variant="ghost"
+                     @click="cancelAddingTask"
+                  >
+                     Cancel
+                  </UButton>
+                  <UButton
+                     size="xs"
+                     color="primary"
+                     :disabled="!newTaskTitle.trim()"
+                     @click="createTask"
+                  >
+                     Create
+                  </UButton>
+               </div>
+            </UCard>
+         </div>
+         <div v-else class="mt-2">
             <UButton
                variant="ghost"
                :color="$resolveTaskStatusColor(props.status)"
                icon="lucide:plus"
                block
+               :ui="{
+                  base: 'h-12'
+               }"
+               @click="startAddingTask"
             >
                Add Task
             </UButton>
