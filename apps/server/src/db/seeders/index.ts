@@ -1,14 +1,27 @@
 import { db } from "@/db"
 import { seed } from "drizzle-seed"
+import { lexorank } from "@/utils/lexorank"
 import schema from "../schema"
+import { LexoRank } from "@dalet-oss/lexorank"
 
 const { priorityEnum, statusTypeEnum, ..._schema } = schema
 
+const generateRanks = (count: number) => {
+   const firstRank = LexoRank.middle()
+   const lastRank = firstRank.genNext().genNext()
+   const result = firstRank.multipleBetween(lastRank, count - 2)
+   return [
+      firstRank.toString(),
+      ...result.map((item) => item.toString()),
+      lastRank.toString(),
+   ]
+}
+
 async function main() {
-   await seed(db, _schema).refine((f) => {
+   await seed(db, { tasks: _schema.tasks }).refine((f) => {
       return {
-         count: 0,
          users: {
+            count: 0,
             columns: {
                password: f.default({
                   defaultValue: Bun.password.hashSync("password", {
@@ -18,15 +31,19 @@ async function main() {
             },
          },
          tasks: {
-            count: 0,
+            count: 20,
             columns: {
-               title: f.loremIpsum({ sentencesCount: 4 }),
+               title: f.loremIpsum({ sentencesCount: 1 }),
                description: f.loremIpsum({ sentencesCount: 12 }),
-               status_id: f.number({ minValue: 1, maxValue: 5 }),
+               status_id: f.number({ minValue: 1, maxValue: 3 }),
+               rank: f.valuesFromArray({
+                  values: generateRanks(20),
+                  isUnique: true,
+               }),
             },
          },
          statuses: {
-            count: 3,
+            count: 0,
             columns: {
                name: f.valuesFromArray({
                   values: ["OPEN", "IN PROGRESS", "CLOSED"],

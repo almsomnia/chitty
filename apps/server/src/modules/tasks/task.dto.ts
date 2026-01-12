@@ -14,7 +14,8 @@ export const createTaskDto = t.Object({
    status_id: taskDto.insert.status_id,
    assignee_id: taskDto.insert.assignee_id,
    due_date: taskDto.insert.due_date,
-   priority: taskDto.insert.priority
+   priority: taskDto.insert.priority,
+   rank: taskDto.insert.rank
 })
 
 export type CreateTaskDto = Static<typeof createTaskDto>

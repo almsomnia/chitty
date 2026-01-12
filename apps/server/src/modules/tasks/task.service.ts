@@ -53,7 +53,7 @@ export const taskService = {
          .orderBy(
             args.order_dir && args.order_key
                ? order(table.tasks, args.order_key, args.order_dir)
-               : asc(table.tasks.id)
+               : asc(table.tasks.rank),
          )
          .$dynamic()
 
