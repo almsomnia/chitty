@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Draggable from "vuedraggable"
-import { DetailTask } from "#components"
 import { lexorank } from "#shared/utils/lexorank"
 
 const props = defineProps<{
@@ -116,12 +115,6 @@ onMounted(async () => {
    await fetchTasks(props.status)
 })
 
-const dayjs = useDayjs()
-function formatDate(date: string | null) {
-   if (!date) return "-"
-   return dayjs(date).format("DD/MM/YY")
-}
-
 function resolveContainerCardColor(status: Model.Status) {
    switch (status.type) {
       case "IDLE":
@@ -133,20 +126,6 @@ function resolveContainerCardColor(status: Model.Status) {
       default:
          throw new Error("Invalid status type")
    }
-}
-
-function resolveDateBadgeColor(date: string | null) {
-   if (!date) return "neutral"
-   const diff = dayjs(date).diff(dayjs(), "day")
-   if (diff < 0) return "error"
-   if (diff < 3) return "warning"
-   return "neutral"
-}
-
-function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
-   if (priority === "LOW") return "neutral"
-   if (priority === "MEDIUM") return "warning"
-   return "error"
 }
 
 async function onChange(event: any) {
@@ -186,22 +165,6 @@ async function handleTaskUpdate(task: Model.Task, index: number) {
          },
       })
    )
-}
-
-function onTaskDetail(task: Model.Task) {
-   appStore.showDialog(
-      `Task #${task.id}`,
-      h(DetailTask, {
-         data: task,
-      }),
-      {
-         class: /* @tw */ "w-6xl",
-      }
-   )
-}
-
-function onDueDateBadgeClick(task: Model.Task) {
-   alert("hehe")
 }
 
 const isAddingTask = ref(false)
@@ -277,42 +240,9 @@ function createTask() {
             @change="onChange"
          >
             <template #item="{ element: task }">
-               <UCard
-                  variant="soft"
-                  :data-task-id="task.id"
-                  :ui="{
-                     root: 'rounded-lg cursor-pointer bg-default dark:bg-elevated',
-                     body: 'sm:p-2',
-                  }"
-                  @click="onTaskDetail(task)"
-               >
-                  <div class="flex flex-col gap-2 select-none">
-                     <p class="text-sm line-clamp-2 font-medium">
-                        {{ task.title }}
-                     </p>
-                     <div class="flex items-center gap-2">
-                        <UAvatar
-                           :text="task.assignee?.name.charAt(0)"
-                           size="xs"
-                        />
-                        <UBadge
-                           :label="formatDate(task.due_date)"
-                           icon="lucide:calendar"
-                           size="sm"
-                           variant="outline"
-                           :color="resolveDateBadgeColor(task.due_date)"
-                           @click.stop="onDueDateBadgeClick(task)"
-                        />
-                        <UBadge
-                           :label="task.priority"
-                           icon="lucide:flag"
-                           :color="resolvePriorityBadgeColor(task.priority)"
-                           variant="soft"
-                           size="sm"
-                        />
-                     </div>
-                  </div>
-               </UCard>
+               <KanbanTaskCard
+                  :data="task"
+               />
             </template>
             <template #footer>
                <div ref="fetchTrigger" />
