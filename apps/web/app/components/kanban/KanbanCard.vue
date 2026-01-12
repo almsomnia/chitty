@@ -15,12 +15,24 @@ watch(data, (newValue) => {
    if (!newValue) return
    try {
       const message = JSON.parse(newValue)
+
+      // Handle Broadcast: Update list for all users
       if (
-         message.type === "task:create"
-         && message.data.task.status_id === props.status.id
+         message.type === "task:created"
+         && message.data.status_id === props.status.id
       ) {
-         tasks.value.push(message.data.task)
-         totalTasks.value++
+         if (!tasks.value.some((t) => t.id === message.data.id)) {
+            tasks.value.push(message.data)
+            totalTasks.value++
+         }
+      }
+
+      // Handle Confirmation: Notify the creator
+      if (message.type === "task:create" && message.data.task.status_id === props.status.id) {
+         if (!tasks.value.some((t) => t.id === message.data.id)) {
+            tasks.value.push(message.data)
+            totalTasks.value++
+         }
          appStore.notify({
             title: message.data.message,
             color: "success",
