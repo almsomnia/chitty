@@ -140,7 +140,6 @@ function resolvePriorityBadgeColor(priority: Model.Task["priority"]) {
 }
 
 async function onChange(event: any) {
-   console.log("🚀 ~ :104 ~ onChange ~ event:", event)
    if (event.removed) {
       totalTasks.value--
    }
