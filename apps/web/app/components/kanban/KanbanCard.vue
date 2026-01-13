@@ -13,7 +13,7 @@ const appStore = useAppStore()
 watch(data, (newValue) => {
    if (!newValue) return
    try {
-      const message = JSON.parse(newValue)
+      const message = JSON.parse(newValue) as WSMessage
 
       // Handle Broadcast: Update list for all users
       if (
@@ -130,7 +130,6 @@ function resolveContainerCardColor(status: Model.Status) {
 }
 
 async function onChange(event: any) {
-   console.log("🚀 ~ :104 ~ onChange ~ event:", event)
    if (event.removed) {
       totalTasks.value--
    }

@@ -40,7 +40,7 @@ export abstract class wsService {
          this.broadcast(ws, "task", "task:updated", updatedTask)
          this.emit(ws, "task:update", {
             message: "Task updated",
-            data: updatedTask,
+            task: updatedTask,
          })
       },
       "task:create": async (ws, data) => {
