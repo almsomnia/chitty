@@ -9,6 +9,8 @@ declare global {
 
 const client = globalThis.dbClient || new SQL({ ...dbCredentials })
 
+await client`SET TIME ZONE 'UTC'`
+
 if (process.env.NODE_ENV !== "production") {
    globalThis.dbClient = client
 }
