@@ -17,10 +17,15 @@ export default defineAppConfig({
             icon: "lucide:clipboard"
          },
          {
+            label: "Statuses",
+            to: "/statuses",
+            icon: "lucide:clipboard"
+         },
+         {
             label: "Users",
             to: "/users",
             icon: "lucide:users"
-         }
+         },
       ],
    ],
    ui: {

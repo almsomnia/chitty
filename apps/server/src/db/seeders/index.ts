@@ -18,7 +18,10 @@ const generateRanks = (count: number) => {
 }
 
 async function main() {
-   await seed(db, { tasks: _schema.tasks }).refine((f) => {
+   await seed(db, {
+      tasks: _schema.tasks,
+      statuses: _schema.statuses
+   }).refine((f) => {
       return {
          users: {
             count: 0,
@@ -43,16 +46,16 @@ async function main() {
             },
          },
          statuses: {
-            count: 0,
+            count: 3,
             columns: {
                name: f.valuesFromArray({
                   values: ["OPEN", "IN PROGRESS", "CLOSED"],
                   isUnique: true,
                }),
                order: f.valuesFromArray({
-                  values: [1, 2, 3],
-                  isUnique: true,
-               }),
+                  values: generateRanks(3),
+                  isUnique: true
+               })
             },
          },
       }

@@ -3,6 +3,7 @@ import { CreateStatusDto, UpdateStatusDto } from "./status.dto"
 import { table } from "@/db/tables"
 import { HttpError } from "@/utils/http/HttpError"
 import { eq, asc, getTableColumns } from "drizzle-orm"
+import { lexorank } from "@/utils/lexorank"
 
 const columns = getTableColumns(table.statuses)
 
@@ -11,7 +12,7 @@ export const statusService = {
       const result = await db
          .select(columns)
          .from(table.statuses)
-         .orderBy(asc(columns.order))
+         .orderBy(asc(columns.type), asc(columns.order))
 
       return result
    },
@@ -27,6 +28,21 @@ export const statusService = {
 
    create: async (payload: CreateStatusDto) => {
       try {
+         if (!payload.order) {
+            const [firstDataWithSameType] = await db
+               .select({ id: columns.id, order: columns.order })
+               .from(table.statuses)
+               .where(eq(columns.type, payload.type))
+               .orderBy(asc(columns.order))
+               .limit(1)
+
+            if (firstDataWithSameType) {
+               payload.order = lexorank.getRankBetween(null, firstDataWithSameType.order) as string
+            } else {
+               payload.order = lexorank.getInitialRank() as string
+            }
+         }
+
          const result = await db
             .insert(table.statuses)
             .values(payload)

@@ -7,6 +7,7 @@ const props = withDefaults(
       from?: number
       to?: number
       loading?: boolean
+      hidePagination?: boolean
    }>(),
    {
       total: 0,
@@ -47,6 +48,7 @@ const to = computed(() => {
          :loading="props.loading"
       />
       <div
+         v-if="!props.hidePagination"
          class="flex items-center justify-between border-t border-default pt-4"
       >
          <div class="">

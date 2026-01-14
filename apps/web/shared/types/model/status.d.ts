@@ -3,6 +3,6 @@ declare namespace Model {
       id: number
       name: string
       type: "IDLE" | "ACTIVE" | "CLOSE"
-      order: number
+      order: string
    }
 }
