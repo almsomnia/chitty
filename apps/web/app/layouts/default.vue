@@ -1,13 +1,14 @@
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 
 <template>
-   <UDashboardGroup unit="rem">
+   <UDashboardGroup
+      unit="rem"
+      storage="local"
+   >
       <LayoutSidebar />
       <UDashboardPanel>
          <template #header>
-            <LayoutHeader/>
+            <LayoutHeader />
          </template>
          <template #body>
             <slot />
