@@ -3,6 +3,10 @@ import { DetailTask, UBadge } from "#components"
 import type { DropdownMenuItem, SelectProps } from "#ui/types"
 import type { CreateTaskSchema } from "#shared/utils/validation-schemas/tasks"
 
+useHead({
+   title: "Tasks List",
+})
+
 const appStore = useAppStore()
 const dayjs = useDayjs()
 

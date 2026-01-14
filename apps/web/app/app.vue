@@ -1,4 +1,11 @@
 <script setup lang="ts">
+const appConfig = useAppConfig()
+useHead({
+   titleTemplate: (title) => {
+      return title ? `${title} | ${appConfig.appName}` : appConfig.appName
+   },
+})
+
 const appStore = useAppStore()
 </script>
 

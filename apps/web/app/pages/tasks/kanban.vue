@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const appStore = useAppStore()
 
+useHead({
+   title: "Task Kanban",
+})
+
 const { close, data, send } = useWS({
    onConnected: (ws) => {
       ws.send(JSON.stringify({ type: "subscribe:task", data: null }))

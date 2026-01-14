@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { UBadge } from "#components"
 
+useHead({
+   title: "Dashboard",
+})
+
 const { data: tasksDueToday, execute: fetchTasksDueToday } = await useLazyFetch(
    "/api/dashboard/tasks-due-today",
    {

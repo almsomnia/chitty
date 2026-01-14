@@ -5,6 +5,10 @@ import type {
    UpdateUserSchema,
 } from "#shared/utils/validation-schemas/users"
 
+useHead({
+   title: "Users",
+})
+
 const appStore = useAppStore()
 const authStore = useAuthStore()
 

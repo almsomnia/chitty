@@ -3,6 +3,10 @@ definePageMeta({
    layout: false
 })
 
+useHead({
+   title: "Login",
+})
+
 const schema = zod.object({
    email: zod.email(),
    password: zod.string().min(8),

@@ -10,6 +10,10 @@ import { Icon } from "#components"
 import FormStatus from "~/components/forms/status/FormStatus.vue"
 import AppConfirmDialog from "~/components/app/AppConfirmDialog.vue"
 
+useHead({
+   title: "Statuses",
+})
+
 const appStore = useAppStore()
 
 const query = ref<API.Query>({
