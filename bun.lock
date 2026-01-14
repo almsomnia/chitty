@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "chitty",
+      "name": "vura",
       "devDependencies": {
         "@types/bun": "latest",
       },

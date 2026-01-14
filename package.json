@@ -1,5 +1,5 @@
 {
-   "name": "chitty",
+   "name": "vura",
    "private": true,
    "scripts": {
       "clean:all": "bun --workspaces clean && bunx rimraf node_modules",

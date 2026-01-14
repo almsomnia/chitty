@@ -1,4 +1,4 @@
-# chitty
+# vura
 
 To install dependencies:
 

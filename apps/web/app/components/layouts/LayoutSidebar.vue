@@ -6,6 +6,7 @@ const authStore = useAuthStore()
 const appStore = useAppStore()
 const user = computed(() => authStore.user)
 const colorMode = useColorMode()
+const appName = useAppConfig().appName
 
 const userDropdownMenu = computed<DropdownMenuItem[][]>(() => {
    return [
@@ -61,7 +62,7 @@ const userDropdownMenu = computed<DropdownMenuItem[][]>(() => {
                v-if="!collapsed"
                class="ms-1 font-bold text-lg"
             >
-               Chitty
+               {{ appName }}
             </span>
          </div>
       </template>

@@ -1,4 +1,5 @@
 export default defineAppConfig({
+   appName: "Vura",
    menu: [
       [
          {
