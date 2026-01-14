@@ -5,6 +5,7 @@ import userModules from "@/modules/users"
 import authModules from "@/modules/auth"
 import taskModules from "@/modules/tasks"
 import statusModules from "@/modules/statuses"
+import dashboardModules from "@/modules/dashboard"
 import wsModules from "@/modules/ws"
 
 const port = import.meta.env.SERVER_PORT ?? 3080
@@ -46,6 +47,7 @@ const app = new Elysia({
    .use(userModules)
    .use(taskModules)
    .use(statusModules)
+   .use(dashboardModules)
    .get("/", ({ response }) => response(null, { message: "OK" }))
    .listen(port)
 
